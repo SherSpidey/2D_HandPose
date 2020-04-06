@@ -19,7 +19,7 @@ class DS(object):
     # output adjustable batch_size's data
     def NextBatch(self):
         self.images = load_image(self.data_dir, index=self.turn, batch_size=self.batch_size)
-        self.turn += self.batch_size
-        if self.turn > self.all_truns:
-            self.turn = 0
-        return self.images, self.annotations[self.turn - self.batch_size:self.turn, :]
+        self.turn += 1
+        if self.turn == self.all_truns:
+            self.turn = 1
+        return self.images, self.annotations[(self.turn - 1)*self.batch_size:self.turn*self.batch_size, :]

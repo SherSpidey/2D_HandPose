@@ -11,8 +11,8 @@ class SV(object):
     pretrained_model_name="cpm_hand"
 
     #Training value set
-    batch_size=5
-    episodes=15
+    batch_size=10
+    episodes=30
     epo_turns=1000
     learning_rate=0.001
     lr_decay_rate = 0.5

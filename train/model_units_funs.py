@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 
 def make_gaussian(output_size, gaussian_variance=3, location=None):
@@ -33,7 +34,8 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
 
     batch_heatmap=np.array(batch_heatmap)
     #need to trans-shape to adapt the model output: 28x28X21
-    return np.transpose(batch_heatmap,(0,2,3,1))
+    batch_heatmap=np.transpose(batch_heatmap,(0,2,3,1))
+    return batch_heatmap
 
 
 

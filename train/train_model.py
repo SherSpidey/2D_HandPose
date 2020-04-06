@@ -88,13 +88,14 @@ def main(argv):
                                                          feed_dict={cpm.input_placeholder: images,
                                                                     cpm.heatmap_placeholder: heatmap})
 
-            saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
-            print("\nModel checkpoint saved...\n")
             print("epsoid ", epsoid, ":")
             print("totol loss is %f" % totol_loss)
             for i in range(SV.cpm_stage):
                 print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
+            print("")
         print("=====================train done==========================")
+        saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
+        print("\nModel checkpoint saved...\n")
 
 
 if __name__ == '__main__':
