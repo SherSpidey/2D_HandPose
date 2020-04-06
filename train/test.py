@@ -8,6 +8,6 @@ print(M.annotations.shape)
 for i in range(150):
     for j in range(100):
         a,b=M.NextBatch()
-        print(b.shape)
+        #print(b.shape)
         c=generate_heatmap(224,28,b)
     print("epsoid %d over!"%(i+1))
