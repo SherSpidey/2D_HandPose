@@ -141,13 +141,12 @@ def draw_keypoint(fig, coords, linewidth='1', flag='o'):
 
 # show the result picture
 def reshow(pic, coords, num=1):
-    if num == 1:
+    if num==None:
         plt.imshow(pic)
         draw_keypoint(plt, coords)
         plt.show()
-    else:
-        for i in range(num):
-            plt.imshow(pic[i])
-            draw_keypoint(plt, coords[i])
-            plt.show()
+    for i in range(num):
+        plt.imshow(pic[i])
+        draw_keypoint(plt, coords[i])
+        plt.show()
 # a=load_annotation("../../../dataset/FreiHAND_pub_v2")
