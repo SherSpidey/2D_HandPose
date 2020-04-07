@@ -17,7 +17,7 @@ def make_gaussian(output_size, gaussian_variance=3, location=None):
         x0 = location[0]
         y0 = location[1]
 
-    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / 2.0 / (gaussian_variance ** 2))
+    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / 2.0 / gaussian_variance )
 
 def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
     """
@@ -36,6 +36,20 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
     #need to trans-shape to adapt the model output: 28x28X21
     batch_heatmap=np.transpose(batch_heatmap,(0,2,3,1))
     return batch_heatmap
+
+def get_coords_from_heatmap(heatmap,scale=8):
+    annotations=[]
+    heatmap=np.transpose(heatmap,(0,3,1,2))
+    for i in range(heatmap.shape[0]):
+        joints=[]
+        for j in range(heatmap.shape[1]):
+            index=np.argmax(heatmap[i][j])
+            joints.append([(index%heatmap[i][j].shape[1])*scale,
+                           (index//heatmap[i][j].shape[1])*scale])
+        annotations.append(joints)
+    annotations=np.array(annotations)
+    return annotations
+
 
 
 

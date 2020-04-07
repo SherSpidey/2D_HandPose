@@ -10,11 +10,13 @@ class SV(object):
     model_save_path = "Model"
     model_name="cpm_hand"
     pretrained_model_name="cpm_hand"
+    testdir="test"
+    testname="00000000.jpg"
 
     #Training value set
     batch_size=5
     episodes=30
-    epo_turns=1000
-    learning_rate=0.001
-    lr_decay_rate = 0.5
+    epo_turns=3000
+    learning_rate=0.0001
+    lr_decay_rate = 0.75
     lr_decay_step=3000
