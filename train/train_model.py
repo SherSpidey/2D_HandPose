@@ -99,9 +99,12 @@ def main(argv):
                     for i in range(SV.cpm_stage):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
+
+            if (epsoid+1)%5==0:
+                saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
+                print("\nModel checkpoint saved...\n")
         print("=====================train done==========================")
-        saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
-        print("\nModel checkpoint saved...\n")
+
 
 
 if __name__ == '__main__':
