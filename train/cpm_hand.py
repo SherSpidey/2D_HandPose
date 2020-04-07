@@ -89,7 +89,7 @@ class CPM_Model(object):
 
         with tf.variable_scope('total_loss'):
             for stage in range(self.stages):
-                self.total_loss += self.stage_loss[stage]
+                self.total_loss += self.stage_loss[stage]#*(stage+1)/self.stages
             #tf.summary.scalar('total loss', self.total_loss)
 
         with tf.variable_scope('train'):
