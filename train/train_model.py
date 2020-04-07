@@ -56,6 +56,7 @@ def main(argv):
             if len(glob.glob(pretrained_model_dir))!=0:
                 print("Now loading model!")
                 if SV.pretrained_model_name.endswith('.pkl'):
+
                     cpm.load_weights_from_file(pretrained_model_dir, sess, finetune=True)
 
                     # Check weights
@@ -78,16 +79,10 @@ def main(argv):
         for epsoid in range(SV.episodes):
             # Forward and update weights
             for turn in range(SV.epo_turns):
+
                 images, annotations = data.NextBatch()
-                #get all stage's heatmap
-                heatmap=[]
-                variance = np.arange(cpm.stages, 0, -1)
-                variance=np.sqrt(variance)
-                for i in range(cpm.stages):
-                    heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
-                                                                   SV.heatmap_size, annotations,variance[i]))
-                heatmap = np.array(heatmap)
-                heatmap = np.transpose(heatmap,(1,0,2,3,4))
+
+                heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size,annotations)
 
                 totol_loss, stage_loss, _, current_lr, \
                 stage_heatmap_np, global_step = sess.run([cpm.total_loss,

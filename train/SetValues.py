@@ -11,10 +11,10 @@ class SV(object):
     model_name="cpm_hand"
     pretrained_model_name="cpm_hand"
     testdir="test"
-    testname="00000000.jpg"
+    testname="00000002.jpg"
 
     #Training value set
-    batch_size=5
+    batch_size=1
     episodes=30
     epo_turns=3000
     learning_rate=0.0001

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+import glob
 
 from SetValues import SV
 from DS import DS
@@ -18,7 +19,7 @@ def main(argv):
     """basic setting
     """
     model_dir = os.path.join(SV.model_save_path, SV.model_name)
-    pretrained_model_dir = os.path.join(SV.model_name, SV.pretrained_model_name)
+    pretrained_model_dir = os.path.join(SV.model_save_path, SV.pretrained_model_name+'*')
 
     """load dataset and annotation
     """
@@ -52,7 +53,8 @@ def main(argv):
 
         # Restore pretrained weights
         if SV.pretrained_model_name != "":
-            if os.path.exists(pretrained_model_dir):
+            if len(glob.glob(pretrained_model_dir))!=0:
+                print("Now loading model!")
                 if SV.pretrained_model_name.endswith('.pkl'):
                     cpm.load_weights_from_file(pretrained_model_dir, sess, finetune=True)
 
@@ -64,6 +66,7 @@ def main(argv):
 
                 else:
                     saver.restore(sess, model_dir)
+                    print("load model done!")
 
                     # check weights
                     for variable in tf.trainable_variables():
@@ -76,7 +79,15 @@ def main(argv):
             # Forward and update weights
             for turn in range(SV.epo_turns):
                 images, annotations = data.NextBatch()
-                heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size, annotations)
+                #get all stage's heatmap
+                heatmap=[]
+                variance = np.arange(cpm.stages, 0, -1)
+                variance=np.sqrt(variance)
+                for i in range(cpm.stages):
+                    heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
+                                                                   SV.heatmap_size, annotations,variance[i]))
+                heatmap = np.array(heatmap)
+                heatmap = np.transpose(heatmap,(1,0,2,3,4))
 
                 totol_loss, stage_loss, _, current_lr, \
                 stage_heatmap_np, global_step = sess.run([cpm.total_loss,
@@ -87,12 +98,12 @@ def main(argv):
                                                           cpm.global_step],
                                                          feed_dict={cpm.input_placeholder: images,
                                                                     cpm.heatmap_placeholder: heatmap})
-
-            print("epsoid ", epsoid, ":")
-            print("totol loss is %f" % totol_loss)
-            for i in range(SV.cpm_stage):
-                print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
-            print("")
+                if (turn+1)%10==0:
+                    print("epsoid ", epsoid, ":")
+                    print("totol loss is %f" % totol_loss)
+                    for i in range(SV.cpm_stage):
+                        print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
+                    print("")
         print("=====================train done==========================")
         saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
         print("\nModel checkpoint saved...\n")

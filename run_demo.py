@@ -3,7 +3,7 @@ from train.SetValues import SV
 from PIL import Image
 from train.data_funs import *
 from train.model_units_funs import *
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 def main(argv):
     """
