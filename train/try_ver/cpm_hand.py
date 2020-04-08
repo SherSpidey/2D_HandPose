@@ -21,7 +21,7 @@ class CPM_Model(object):
                                                 name='input_placeholder')
 
         self.heatmap_placeholder = tf.placeholder(dtype=tf.float32,
-                                                  shape=(None, heatmap_size, heatmap_size,joints),
+                                                  shape=(None,heatmap_size, heatmap_size,joints),
                                                   name='heatmap_placeholder')
 
     def build_model(self):

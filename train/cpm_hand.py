@@ -84,7 +84,7 @@ class CPM_Model(object):
         for stage in range(self.stages):
             with tf.variable_scope('stage' + str(stage + 1) + '_loss'):
                 self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage] - self.heatmap_placeholder[:,stage,:,:],
-                                                       name='l2_loss') / self.batch_size
+                                                       name='l2_loss') *np.sqrt((stage+1)/self.stages)/ self.batch_size
             #tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
 
         with tf.variable_scope('total_loss'):
