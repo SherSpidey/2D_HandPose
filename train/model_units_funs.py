@@ -17,7 +17,7 @@ def make_gaussian(output_size, gaussian_variance=3, location=None):
         x0 = location[0]
         y0 = location[1]
 
-    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) /2.0/gaussian_variance )
+    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) /2.0/(gaussian_variance**2) )
 
 def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
     """
