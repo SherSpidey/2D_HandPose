@@ -14,9 +14,9 @@ class SV(object):
     testname="00000002.jpg"
 
     #Training value set
-    batch_size=5
+    batch_size=10
     episodes=30
-    epo_turns=10000
+    epo_turns=5000
     learning_rate=0.0001
-    lr_decay_rate = 0.5
-    lr_decay_step=10000
+    lr_decay_rate = 0.6
+    lr_decay_step=5000

@@ -82,7 +82,7 @@ def main(argv):
                 #get all stage's heatmap
                 heatmap=[]
                 variance = np.arange(cpm.stages, 0, -1)
-                #variance=np.sqrt(variance)
+                variance=np.sqrt(variance)
                 for i in range(cpm.stages):
                     heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
                                                                    SV.heatmap_size, annotations,variance[i]))
