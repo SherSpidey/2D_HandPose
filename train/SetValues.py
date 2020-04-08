@@ -5,8 +5,8 @@ class SV(object):
     heatmap_size = 28
     cpm_stage = 3
     joint = 21
-    #dataset_main_path = "dataset"
-    dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
+    dataset_main_path = "dataset"
+    #dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
     model_save_path = "Model"
     model_name="cpm_hand"
     pretrained_model_name="cpm_hand"
@@ -16,7 +16,7 @@ class SV(object):
     #Training value set
     batch_size=5
     episodes=30
-    epo_turns=8000
+    epo_turns=10000
     learning_rate=0.0001
-    lr_decay_rate = 0.6
-    lr_decay_step=8000
+    lr_decay_rate = 0.5
+    lr_decay_step=10000

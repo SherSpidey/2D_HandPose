@@ -21,7 +21,7 @@ class CPM_Model(object):
                                                 name='input_placeholder')
 
         self.heatmap_placeholder = tf.placeholder(dtype=tf.float32,
-                                                  shape=(None, self.stages, heatmap_size, heatmap_size,joints),
+                                                  shape=(None,heatmap_size, heatmap_size,joints),
                                                   name='heatmap_placeholder')
 
     def build_model(self):
@@ -83,7 +83,7 @@ class CPM_Model(object):
 
         for stage in range(self.stages):
             with tf.variable_scope('stage' + str(stage + 1) + '_loss'):
-                self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage] - self.heatmap_placeholder[:,stage,:,:],
+                self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage] - self.heatmap_placeholder,
                                                        name='l2_loss') / self.batch_size
             #tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
 
