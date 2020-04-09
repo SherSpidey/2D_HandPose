@@ -44,8 +44,14 @@ def get_coords_from_heatmap(heatmap,scale=8):
         joints=[]
         for j in range(heatmap.shape[1]):
             index=np.argmax(heatmap[i][j])
-            joints.append([(index%heatmap[i][j].shape[1])*scale,
-                           (index//heatmap[i][j].shape[1])*scale])
+            x=index % heatmap[i][j].shape[1]
+            y=index // heatmap[i][j].shape[1]
+            if x<=3 or y <=3:
+                heatmap[i][j][x][y]=0
+                index = np.argmax(heatmap[i][j])
+                x = index % heatmap[i][j].shape[1]
+                y = index // heatmap[i][j].shape[1]
+            joints.append([x*scale,y*scale])
         annotations.append(joints)
     annotations=np.array(annotations)
     return annotations
