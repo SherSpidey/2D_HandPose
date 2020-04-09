@@ -81,7 +81,17 @@ def main(argv):
             for turn in range(SV.epo_turns):
                 images, annotations = data.NextBatch()
                 #get all stage's heatmap
-                heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size, annotations)
+                #"""
+                heatmap = []
+                variance = np.arange(sk.stages, 0, -1)
+                variance = np.sqrt(variance)
+                for i in range(sk.stages):
+                    heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
+                                                                     SV.heatmap_size, annotations, variance[i]))
+                heatmap = np.array(heatmap)
+                heatmap = np.transpose(heatmap, (1, 0, 2, 3, 4))
+                #"""
+                #heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size, annotations)
 
                 totol_loss, stage_loss, _, current_lr, \
                 stage_heatmap_np, global_step = sess.run([sk.total_loss,

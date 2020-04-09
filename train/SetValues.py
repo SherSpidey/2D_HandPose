@@ -7,8 +7,8 @@ class SV(object):
     heatmap_size = 28
     stages = 3
     joint = 21
-    #dataset_main_path = "dataset"
-    dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
+    dataset_main_path = "dataset"
+    #dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
     model_save_path = "Model"
     model_name="cpm_hand"
     pretrained_model_name="cpm_hand"
