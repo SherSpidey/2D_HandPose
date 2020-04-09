@@ -29,7 +29,7 @@ def main(argv):
     cpm = CPM_Model(SV.input_size,
                     SV.heatmap_size,
                     SV.batch_size,
-                    SV.cpm_stage,
+                    SV.stages,
                     SV.joint)
     """build CPM model
     """
@@ -60,7 +60,7 @@ def main(argv):
             saver.restore(sess, model_dir)
             print("load model done!")
 
-        heatmap = sess.run(cpm.stage_heatmap[SV.cpm_stage - 1], feed_dict={cpm.input_placeholder: image})
+        heatmap = sess.run(cpm.stage_heatmap[SV.stages - 1], feed_dict={cpm.input_placeholder: image})
 
         annotation = get_coords_from_heatmap(heatmap)
 

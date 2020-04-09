@@ -148,5 +148,6 @@ def reshow(pic, coords, num=1):
     for i in range(num):
         plt.imshow(pic[i])
         draw_keypoint(plt, coords[i])
+        plt.axis('off')
         plt.show()
 # a=load_annotation("../../../dataset/FreiHAND_pub_v2")
