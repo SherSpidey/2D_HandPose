@@ -1,9 +1,9 @@
-from train.SK_hand import SK_Model
+from train.KRT_model import KRT
 from train.SetValues import SV
 from PIL import Image
 from train.data_funs import *
 from train.model_units_funs import *
-#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 def main(argv):
     """
@@ -12,7 +12,7 @@ def main(argv):
     :return:
     """
     """model load path"""
-    model_dir = os.path.join("train", SV.model_save_path, SV.model_name)
+    model_dir = os.path.join("train", SV.model_save_path, SV.pretrained_model_name)
 
     """basic setting"""
     test_dir = os.path.join(SV.testdir, SV.testname)
@@ -26,16 +26,15 @@ def main(argv):
     image = image[np.newaxis, :]
 
     """load CPM model"""
-    sk = SK_Model(SV.input_size,
-                  SV.heatmap_size,
-                  SV.batch_size,
-                  SV.sk_index,
-                  stages=SV.stages,
-                  joints=SV.joint)
+    krt = KRT(SV.input_size,
+                    SV.heatmap_size,
+                    SV.batch_size,
+                    SV.sk_index,
+                    SV.joint)
     """build CPM model
     """
-    sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
+    krt.build_model()
+    krt.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
     print('\n=====Model Build=====\n')
 
     with tf.Session() as sess:
@@ -49,7 +48,7 @@ def main(argv):
         # Restore pretrained weights
         print("Now loading model!")
         if model_dir.endswith('.pkl'):
-            sk.load_weights_from_file(model_dir, sess, finetune=True)
+            #krt.load_weights_from_file(model_dir, sess, finetune=True)
 
             # Check weights
             for variable in tf.trainable_variables():
@@ -61,7 +60,7 @@ def main(argv):
             saver.restore(sess, model_dir)
             print("load model done!")
 
-        heatmap = sess.run(sk.stage_heatmap[SV.stages - SV.stages], feed_dict={sk.input_placeholder: image})
+        heatmap = sess.run(krt.heatmap, feed_dict={krt.input_placeholder: image})
 
         annotation = get_coords_from_heatmap(heatmap)
 
