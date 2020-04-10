@@ -34,7 +34,7 @@ def main(argv):
     """build CPM model
     """
     cpm.build_model()
-    cpm.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step)
+    cpm.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
     print('\n=====Model Build=====\n')
 
     with tf.Session() as sess:

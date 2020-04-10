@@ -101,7 +101,7 @@ class SK_Model(object):
                 mid_map = tf.concat([mid_map, heatmap[:, :, :, self.SK[i]][:, :, :, np.newaxis]], axis=3)
             self.stage_heatmap.append(mid_map)
 
-    def build_loss(self, lr, lr_decay_rate, lr_decay_step, optimizer='RMSProp'):
+    def build_loss(self, lr, lr_decay_rate, lr_decay_step, optimizer='Adam'):#RMSProp
         self.total_loss = 0
         self.learning_rate = lr
         self.lr_decay_rate = lr_decay_rate
