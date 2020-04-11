@@ -33,7 +33,7 @@ def main(argv):
     cpm = CPM_Model(SV.input_size,
                     SV.heatmap_size,
                     SV.batch_size,
-                    SV.cpm_stage,
+                    SV.stages,
                     SV.joint)
     """build CPM model
     """
@@ -101,7 +101,7 @@ def main(argv):
                 if (turn+1)%10==0:
                     print("epsoid ", epsoid, ":")
                     print("totol loss is %f" % totol_loss)
-                    for i in range(SV.cpm_stage):
+                    for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
             if (epsoid+1)%5==0:

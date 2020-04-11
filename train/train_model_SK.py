@@ -39,7 +39,7 @@ def main(argv):
     """build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step)
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
     print('\n=====Model Build=====\n')
 
     """training
@@ -104,11 +104,12 @@ def main(argv):
                                                                     sk.heatmap_placeholder: heatmap})
                 if (turn+1)%10==0:
                     print("epsoid ", epsoid, ":")
+                    print("learning rate: ",current_lr)
                     print("totol loss is %f" % totol_loss)
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
-            if (epsoid+1)%5==0:
+            if (epsoid+1)%3==0:
                 saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
                 print("\nModel checkpoint saved...\n")
         print("=====================train done==========================")

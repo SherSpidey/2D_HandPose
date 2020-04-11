@@ -10,8 +10,8 @@ class SV(object):
     dataset_main_path = "dataset"
     #dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
     model_save_path = "Model"
-    model_name="krt_hand"
-    pretrained_model_name="krt_hand"
+    model_name="sk_hand"
+    pretrained_model_name="sk_hand"
     testdir="test"
     testname="hand4.jpg"
 
@@ -19,6 +19,6 @@ class SV(object):
     batch_size=10
     episodes=30
     epo_turns=5000
-    learning_rate=0.001
-    lr_decay_rate = 0.5
+    learning_rate=0.00015
+    lr_decay_rate = 0.85
     lr_decay_step=5000
