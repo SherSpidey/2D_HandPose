@@ -19,6 +19,6 @@ class SV(object):
     batch_size=10
     episodes=30
     epo_turns=5000
-    learning_rate=0.00015
-    lr_decay_rate = 0.85
+    learning_rate=0.000015
+    lr_decay_rate = 0.95
     lr_decay_step=5000

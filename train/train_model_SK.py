@@ -93,11 +93,12 @@ def main(argv):
                 #"""
                 #heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size, annotations)
 
-                totol_loss, stage_loss, _, current_lr, \
+                totol_loss, stage_loss, _, current_lr, center_loss,\
                 stage_heatmap_np, global_step = sess.run([sk.total_loss,
                                                           sk.stage_loss,
                                                           sk.train_op,
                                                           sk.lr,
+                                                          sk.stage_center_loss,
                                                           sk.stage_heatmap,
                                                           sk.global_step],
                                                           feed_dict={sk.input_placeholder: images,
@@ -108,6 +109,9 @@ def main(argv):
                     print("totol loss is %f" % totol_loss)
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
+                    print("")
+                    for i in range(SV.stages):
+                        print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
                     print("")
             if (epsoid+1)%3==0:
                 saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
