@@ -79,15 +79,18 @@ def main(argv):
             # Forward and update weights
             for turn in range(SV.epo_turns):
                 images, annotations = data.NextBatch()
-                #get all stage's heatmap
-                heatmap=[]
-                variance = np.arange(cpm.stages, 0, -1)
-                variance=np.sqrt(variance)
-                for i in range(cpm.stages):
+                # get all stage's heatmap
+                """
+                heatmap = []
+                variance = np.arange(sk.stages, 0, -1)
+                variance = np.sqrt(variance)
+                for i in range(sk.stages):
                     heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
-                                                                   SV.heatmap_size, annotations,variance[i]))
+                                                                     SV.heatmap_size, annotations, variance[i]))
                 heatmap = np.array(heatmap)
-                heatmap = np.transpose(heatmap,(1,0,2,3,4))
+                heatmap = np.transpose(heatmap, (1, 0, 2, 3, 4))
+                """
+                heatmap = model_units_funs.generate_heatmap(SV.input_size, SV.heatmap_size, annotations)
 
                 totol_loss, stage_loss, _, current_lr, \
                 stage_heatmap_np, global_step = sess.run([cpm.total_loss,
@@ -98,8 +101,9 @@ def main(argv):
                                                           cpm.global_step],
                                                          feed_dict={cpm.input_placeholder: images,
                                                                     cpm.heatmap_placeholder: heatmap})
-                if (turn+1)%10==0:
+                if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
+                    print("learning rate: ", current_lr)
                     print("totol loss is %f" % totol_loss)
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
