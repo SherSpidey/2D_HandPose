@@ -1,8 +1,9 @@
 from train.SK_hand import SK_Model
-from train.SetValues import SV
+from old_ver.V1.SetValues import SV
 from PIL import Image
-from train.data_funs import *
-from train.model_units_funs import *
+from old_ver.V1.data_funs import *
+from old_ver.V1.model_units_funs import *
+from old_ver.V1.DS import DS
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 def main(argv):
@@ -17,6 +18,10 @@ def main(argv):
     """basic setting"""
     test_dir = os.path.join(SV.testdir, SV.testname)
 
+    data = DS(SV.dataset_main_path,
+              1,
+              datasize(SV.mode),
+              mode=SV.mode)
     """input resize"""
     file_assert(test_dir)
     image = Image.open(test_dir)
@@ -35,7 +40,7 @@ def main(argv):
     """build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="RMSProp")
     print('\n=====Model Build=====\n')
 
     with tf.Session() as sess:
@@ -61,11 +66,19 @@ def main(argv):
             saver.restore(sess, model_dir)
             print("load model done!")
 
-        heatmap = sess.run(sk.stage_heatmap[SV.stages - SV.stages], feed_dict={sk.input_placeholder: image})
-
-        annotation = get_coords_from_heatmap(heatmap)
-
+        """ima,lab=data.NextBatch()
+        heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, lab)
+        heatmap ,loss= sess.run([sk.stage_heatmap[SV.stages- 1],
+                                sk.stage_loss[SV.stages- 1]],
+                                feed_dict={sk.input_placeholder: ima,
+                                           sk.heatmap_placeholder: heatmap})"""
+        heatmap = sess.run(sk.stage_heatmap[SV.stages -1],
+                                feed_dict={sk.input_placeholder: image})
+        #print("heatmap:",heatmap[0])
+        annotation = get_coods_v2(heatmap)
+        #print("loss=",loss)
         reshow(image, annotation)
+        #reshow(ima,lab)
 
 
 if __name__ == '__main__':

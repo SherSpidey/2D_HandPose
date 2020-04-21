@@ -3,10 +3,10 @@ import numpy as np
 import os
 import glob
 
-from SetValues import SV
-from DS import DS
-import model_units_funs
-import data_funs
+from old_ver.V1.SetValues import SV
+from old_ver.V1.DS import DS
+import old_ver.V1.model_units_funs as model_units_funs
+from old_ver.V1 import data_funs
 from SK_hand import SK_Model
 
 
@@ -91,7 +91,7 @@ def main(argv):
                 heatmap = np.array(heatmap)
                 heatmap = np.transpose(heatmap, (1, 0, 2, 3, 4))
                 """
-                heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size, annotations)
+                heatmap= model_units_funs.generate_heatmap(SV.input_size, SV.heatmap_size, annotations)
 
                 totol_loss, stage_loss, _, current_lr, center_loss,\
                 stage_heatmap_np, global_step = sess.run([sk.total_loss,

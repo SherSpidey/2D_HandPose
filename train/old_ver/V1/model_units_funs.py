@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 import tensorflow as tf
 
 
@@ -46,7 +47,7 @@ def get_coords_from_heatmap(heatmap,scale=8):
             index=np.argmax(heatmap[i][j])
             x=index % heatmap[i][j].shape[1]
             y=index // heatmap[i][j].shape[1]
-            if x<=3 or y <=3:
+            if x<=3 or y <=3 or heatmap[i][j].shape[1]-x<=3 or heatmap[i][j].shape[1]-y<=3:
                 heatmap[i][j][x][y]=0
                 index = np.argmax(heatmap[i][j])
                 x = index % heatmap[i][j].shape[1]
@@ -56,6 +57,15 @@ def get_coords_from_heatmap(heatmap,scale=8):
     annotations=np.array(annotations)
     return annotations
 
+def get_coods_v2(stage_heatmap):
+    annotation=np.zeros((21, 2))
+    heatmap=stage_heatmap[0,:,:,:].reshape(28,28,21)
+    heatmap=cv2.resize(heatmap,(368,368))
+    for joint_num in range(21):
+        joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),
+                                       (368, 368))
+        annotation[joint_num,:]=[joint_coord[1],joint_coord[0]]
+    return annotation[np.newaxis,:]
 
 
 

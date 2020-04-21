@@ -1,8 +1,7 @@
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
-from SetValues import SV
-import model_units_funs
+import pickle
 
 
 class SK_Model(object):
@@ -140,4 +139,105 @@ class SK_Model(object):
         # self.merged_summary = tf.summary.merge_all()
 
     def load_weights_from_file(self, weight_file_path, sess, finetune=True):
-        pass
+        # weight_file_object = open(weight_file_path, 'rb')
+        weights = pickle.load(open(weight_file_path, 'rb'), encoding='latin1')
+
+        with tf.variable_scope('', reuse=True):
+            ## Pre stage conv
+            # conv1
+            for layer in range(1, 3):
+                conv_kernel = tf.get_variable('sub_stages/sub_conv' + str(layer) + '/weights')
+                conv_bias = tf.get_variable('sub_stages/sub_conv' + str(layer) + '/biases')
+
+                loaded_kernel = weights['conv1_' + str(layer)]
+                loaded_bias = weights['conv1_' + str(layer) + '_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+            # conv2
+            for layer in range(1, 3):
+                conv_kernel = tf.get_variable('sub_stages/sub_conv' + str(layer + 2) + '/weights')
+                conv_bias = tf.get_variable('sub_stages/sub_conv' + str(layer + 2) + '/biases')
+
+                loaded_kernel = weights['conv2_' + str(layer)]
+                loaded_bias = weights['conv2_' + str(layer) + '_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+            # conv3
+            for layer in range(1, 5):
+                conv_kernel = tf.get_variable('sub_stages/sub_conv' + str(layer + 4) + '/weights')
+                conv_bias = tf.get_variable('sub_stages/sub_conv' + str(layer + 4) + '/biases')
+
+                loaded_kernel = weights['conv3_' + str(layer)]
+                loaded_bias = weights['conv3_' + str(layer) + '_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+            # conv4
+            for layer in range(1, 5):
+                conv_kernel = tf.get_variable('sub_stages/sub_conv' + str(layer + 8) + '/weights')
+                conv_bias = tf.get_variable('sub_stages/sub_conv' + str(layer + 8) + '/biases')
+
+                loaded_kernel = weights['conv4_' + str(layer)]
+                loaded_bias = weights['conv4_' + str(layer) + '_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+            # conv5
+            for layer in range(1, 3):
+                conv_kernel = tf.get_variable('sub_stages/sub_conv' + str(layer + 12) + '/weights')
+                conv_bias = tf.get_variable('sub_stages/sub_conv' + str(layer + 12) + '/biases')
+
+                loaded_kernel = weights['conv5_' + str(layer)]
+                loaded_bias = weights['conv5_' + str(layer) + '_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+            # conv5_3_CPM
+            conv_kernel = tf.get_variable('sub_stages/sub_stage_img_feature/weights')
+            conv_bias = tf.get_variable('sub_stages/sub_stage_img_feature/biases')
+
+            loaded_kernel = weights['conv5_3_CPM']
+            loaded_bias = weights['conv5_3_CPM_b']
+
+            sess.run(tf.assign(conv_kernel, loaded_kernel))
+            sess.run(tf.assign(conv_bias, loaded_bias))
+
+            if finetune != True:
+                ## stage 1
+                conv_kernel = tf.get_variable('stage_1/conv1/weights')
+                conv_bias = tf.get_variable('stage_1/conv1/biases')
+
+                loaded_kernel = weights['conv6_1_CPM']
+                loaded_bias = weights['conv6_1_CPM_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+                conv_kernel = tf.get_variable('stage_1/stage_heatmap/weights')
+                conv_bias = tf.get_variable('stage_1/stage_heatmap/biases')
+
+                loaded_kernel = weights['conv6_2_CPM']
+                loaded_bias = weights['conv6_2_CPM_b']
+
+                sess.run(tf.assign(conv_kernel, loaded_kernel))
+                sess.run(tf.assign(conv_bias, loaded_bias))
+
+                ## stage 2 and behind
+                for stage in range(2, self.stages + 1):
+                    for layer in range(1, 8):
+                        conv_kernel = tf.get_variable('stage_' + str(stage) + '/mid_conv' + str(layer) + '/weights')
+                        conv_bias = tf.get_variable('stage_' + str(stage) + '/mid_conv' + str(layer) + '/biases')
+
+                        loaded_kernel = weights['Mconv' + str(layer) + '_stage' + str(stage)]
+                        loaded_bias = weights['Mconv' + str(layer) + '_stage' + str(stage) + '_b']
+
+                        sess.run(tf.assign(conv_kernel, loaded_kernel))
+                        sess.run(tf.assign(conv_bias, loaded_bias))
+

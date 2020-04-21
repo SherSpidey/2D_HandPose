@@ -1,1 +1,0 @@
-This dir contain updated functions may work better.

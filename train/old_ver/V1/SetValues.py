@@ -7,16 +7,16 @@ class SV(object):
     heatmap_size = input_size/8
     stages = 6
     joint = 21
-    dataset_main_path = "dataset"
-    #dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
-    model_save_path = "Model"
+    #dataset_main_path = "dataset"
+    dataset_main_path = "../../../../../dataset/FreiHAND_pub_v2"
+    model_save_path = "../../Model"
     model_name="sk_hand"
     pretrained_model_name="sk_hand"
     testdir="test"
-    testname="hand4.jpg"
+    testname="pic2.jpg"
 
     #Training value set
-    batch_size=10
+    batch_size=1
     episodes=30
     epo_turns=5000
     learning_rate=0.0001

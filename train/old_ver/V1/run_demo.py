@@ -1,9 +1,9 @@
-from train.KRT_model import KRT
-from train.SetValues import SV
+from train.cpm_hand import CPM_Model
+from old_ver.V1.SetValues import SV
 from PIL import Image
-from train.data_funs import *
-from train.model_units_funs import *
-
+from old_ver.V1.data_funs import *
+from old_ver.V1.model_units_funs import *
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 def main(argv):
     """
@@ -12,7 +12,7 @@ def main(argv):
     :return:
     """
     """model load path"""
-    model_dir = os.path.join("train", SV.model_save_path, SV.pretrained_model_name)
+    model_dir = os.path.join("train", SV.model_save_path, SV.model_name)
 
     """basic setting"""
     test_dir = os.path.join(SV.testdir, SV.testname)
@@ -26,15 +26,15 @@ def main(argv):
     image = image[np.newaxis, :]
 
     """load CPM model"""
-    krt = KRT(SV.input_size,
+    cpm = CPM_Model(SV.input_size,
                     SV.heatmap_size,
                     SV.batch_size,
-                    SV.sk_index,
+                    SV.stages,
                     SV.joint)
     """build CPM model
     """
-    krt.build_model()
-    krt.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
+    cpm.build_model()
+    cpm.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step,optimizer="Adam")
     print('\n=====Model Build=====\n')
 
     with tf.Session() as sess:
@@ -48,7 +48,7 @@ def main(argv):
         # Restore pretrained weights
         print("Now loading model!")
         if model_dir.endswith('.pkl'):
-            #krt.load_weights_from_file(model_dir, sess, finetune=True)
+            cpm.load_weights_from_file(model_dir, sess, finetune=True)
 
             # Check weights
             for variable in tf.trainable_variables():
@@ -60,7 +60,7 @@ def main(argv):
             saver.restore(sess, model_dir)
             print("load model done!")
 
-        heatmap = sess.run(krt.heatmap, feed_dict={krt.input_placeholder: image})
+        heatmap = sess.run(cpm.stage_heatmap[SV.stages - 1], feed_dict={cpm.input_placeholder: image})
 
         annotation = get_coords_from_heatmap(heatmap)
 

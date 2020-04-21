@@ -1,7 +1,6 @@
 import pickle
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-from model_units_funs import *
 
 
 class CPM_Model(object):

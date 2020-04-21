@@ -1,4 +1,4 @@
-from data_funs import *
+from old_ver.V1.data_funs import *
 import numpy as np
 
 

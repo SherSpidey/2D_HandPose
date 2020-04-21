@@ -3,10 +3,10 @@ import numpy as np
 import os
 import glob
 
-from SetValues import SV
-from DS import DS
-import model_units_funs
-import data_funs
+from old_ver.V1.SetValues import SV
+from old_ver.V1.DS import DS
+import old_ver.V1.model_units_funs as model_units_funs
+from old_ver.V1 import data_funs
 from cpm_hand import CPM_Model
 
 
@@ -33,7 +33,7 @@ def main(argv):
     cpm = CPM_Model(SV.input_size,
                     SV.heatmap_size,
                     SV.batch_size,
-                    SV.cpm_stage,
+                    SV.stages,
                     SV.joint)
     """build CPM model
     """
@@ -56,7 +56,6 @@ def main(argv):
             if len(glob.glob(pretrained_model_dir))!=0:
                 print("Now loading model!")
                 if SV.pretrained_model_name.endswith('.pkl'):
-
                     cpm.load_weights_from_file(pretrained_model_dir, sess, finetune=True)
 
                     # Check weights
@@ -79,10 +78,19 @@ def main(argv):
         for epsoid in range(SV.episodes):
             # Forward and update weights
             for turn in range(SV.epo_turns):
-
                 images, annotations = data.NextBatch()
-
-                heatmap=model_units_funs.generate_heatmap(SV.input_size,SV.heatmap_size,annotations)
+                # get all stage's heatmap
+                """
+                heatmap = []
+                variance = np.arange(sk.stages, 0, -1)
+                variance = np.sqrt(variance)
+                for i in range(sk.stages):
+                    heatmap.append(model_units_funs.generate_heatmap(SV.input_size,
+                                                                     SV.heatmap_size, annotations, variance[i]))
+                heatmap = np.array(heatmap)
+                heatmap = np.transpose(heatmap, (1, 0, 2, 3, 4))
+                """
+                heatmap = model_units_funs.generate_heatmap(SV.input_size, SV.heatmap_size, annotations)
 
                 totol_loss, stage_loss, _, current_lr, \
                 stage_heatmap_np, global_step = sess.run([cpm.total_loss,
@@ -93,13 +101,13 @@ def main(argv):
                                                           cpm.global_step],
                                                          feed_dict={cpm.input_placeholder: images,
                                                                     cpm.heatmap_placeholder: heatmap})
-                if (turn+1)%10==0:
+                if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
+                    print("learning rate: ", current_lr)
                     print("totol loss is %f" % totol_loss)
-                    for i in range(SV.cpm_stage):
+                    for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
-
             if (epsoid+1)%5==0:
                 saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
                 print("\nModel checkpoint saved...\n")
