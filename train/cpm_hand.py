@@ -4,7 +4,7 @@ import tensorflow.contrib.slim as slim
 
 
 class CPM_Model(object):
-    def __init__(self, input_size, heatmap_size, batch_size, stages, joints):
+    def __init__(self, input_size, heatmap_size, batch_size, stages=3, joints=21):
         self.stages = stages
         self.input_size=input_size
         self.stage_heatmap = []

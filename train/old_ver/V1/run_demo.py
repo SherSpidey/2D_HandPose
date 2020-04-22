@@ -1,4 +1,4 @@
-from train.cpm_hand import CPM_Model
+from train_model.cpm_hand import CPM_Model
 from old_ver.V1.SetValues import SV
 from PIL import Image
 from old_ver.V1.data_funs import *
