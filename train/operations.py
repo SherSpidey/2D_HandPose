@@ -176,7 +176,7 @@ def make_gaussian(output_size, gaussian_variance=3, location=None):
 
     return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) /2.0/gaussian_variance /gaussian_variance)
 
-def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
+def generate_heatmap(input_size,heatmap_size,batch_labels,model="cpm_sk",gaussian_variance=1):
     """
     generate heatmap from joints
     """
@@ -188,12 +188,13 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
 
     for eachpic in range(batch_labels.shape[0]):
         heatmap=[]
-        reverse_hm=np.ones(shape=(int(heatmap_size),int(heatmap_size)))
+        reverse_hm=np.zeros(shape=(int(heatmap_size),int(heatmap_size)))
         for joints in range(batch_labels.shape[1]):
             j_hm=make_gaussian(heatmap_size,gaussian_variance,batch_labels[eachpic][joints]//scale)
             heatmap.append(j_hm)
-            reverse_hm-=j_hm
-        heatmap.append(reverse_hm)
+            #reverse_hm-=j_hm
+        if model=="cpm":
+            heatmap.append(reverse_hm)
         batch_heatmap.append(heatmap)
 
     batch_heatmap=np.array(batch_heatmap)

@@ -34,7 +34,7 @@ def main(argv):
                       SV.batch_size,
                       SV.sk_index,
                       stages=SV.stages,
-                      joints=SV.joint+1)
+                      joints=SV.joint)
     else:
         sk = CPM_Model(SV.input_size,
                       SV.heatmap_size,
@@ -45,7 +45,7 @@ def main(argv):
     build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="Adam")#"RMSProp"
     print('\n=====Model Build=====\n')
 
     """
@@ -92,7 +92,7 @@ def main(argv):
                 #normalize the input picture
                 images=images/255.0-0.5
                 #get heatmap
-                heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations)
+                heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations,model=SV.model)
 
                 if SV.model=="cpm_sk":
                     totol_loss, stage_loss, _, current_lr, center_loss, \
@@ -122,7 +122,7 @@ def main(argv):
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
-                    if SV.model=="spm_sk":
+                    if SV.model=="cpm_sk":
                         for i in range(SV.stages):
                             print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
                         print("")
