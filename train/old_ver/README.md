@@ -1,1 +1,1 @@
-This dir contain out-updated functions already have been replaced
+This dir contains out-of-date functions already have been replaced
