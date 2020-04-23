@@ -52,6 +52,10 @@ def main(argv):
     training
     """
     with tf.Session() as sess:
+
+        # Create tensorboard
+        log_writer = tf.summary.FileWriter(SV.log_save_path, sess.graph)
+
         # Create model saver
         saver = tf.train.Saver(max_to_keep=None)
 
@@ -95,10 +99,11 @@ def main(argv):
                 heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations,model=SV.model)
 
                 if SV.model=="cpm_sk":
-                    totol_loss, stage_loss, _, current_lr, center_loss, \
+                    totol_loss, stage_loss, _, summaries, current_lr, center_loss, \
                     stage_heatmap_np, global_step = sess.run([sk.total_loss,
                                                               sk.stage_loss,
                                                               sk.train_op,
+                                                              sk.merged_summary,
                                                               sk.lr,
                                                               sk.stage_center_loss,
                                                               sk.stage_heatmap,
@@ -106,15 +111,19 @@ def main(argv):
                                                               feed_dict={sk.input_placeholder: images,
                                                                          sk.heatmap_placeholder: heatmap})
                 else:
-                    totol_loss, stage_loss, _, current_lr, \
+                    totol_loss, stage_loss, _, summaries,current_lr, \
                     stage_heatmap_np, global_step = sess.run([sk.total_loss,
                                                               sk.stage_loss,
                                                               sk.train_op,
+                                                              sk.merged_summary,
                                                               sk.lr,
                                                               sk.stage_heatmap,
                                                               sk.global_step],
                                                               feed_dict={sk.input_placeholder: images,
                                                                         sk.heatmap_placeholder: heatmap})
+                # Write logs
+                log_writer.add_summary(summaries, global_step)
+
                 if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
                     print("learning rate: ", current_lr)
@@ -130,7 +139,7 @@ def main(argv):
             if (epsoid + 1) % 3 == 0:
                 saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
                 print("\nModel checkpoint saved...\n")
-            print("=====================train done==========================")
+        print("=====================train done==========================")
 
 
 if __name__ == '__main__':

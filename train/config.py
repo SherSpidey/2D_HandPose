@@ -4,6 +4,7 @@ class SV(object):
     testname = "pic2.jpg"
     mode="training"
     dataset_main_path = "dataset"
+    log_save_path = "log"
     #dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
 
 

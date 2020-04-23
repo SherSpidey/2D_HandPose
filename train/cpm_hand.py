@@ -85,12 +85,12 @@ class CPM_Model(object):
                 self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage][:,:,:,0:self.joints-1] -
                                                        self.heatmap_placeholder[:,:,:,0:self.joints-1],
                                                        name='l2_loss') / self.batch_size
-            #tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
+            tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
 
         with tf.variable_scope('total_loss'):
             for stage in range(self.stages):
                 self.total_loss += self.stage_loss[stage]#*(stage+1)/self.stages
-            #tf.summary.scalar('total loss', self.total_loss)
+            tf.summary.scalar('total loss', self.total_loss)
 
         with tf.variable_scope('train'):
             self.global_step = tf.train.get_or_create_global_step()
@@ -99,13 +99,13 @@ class CPM_Model(object):
                                                  global_step=self.global_step,
                                                  decay_rate=self.lr_decay_rate,
                                                  decay_steps=self.lr_decay_step)
-            #tf.summary.scalar('learning rate', self.lr)
+            tf.summary.scalar('learning rate', self.lr)
 
             self.train_op = tf.contrib.layers.optimize_loss(loss=self.total_loss,
                                                             global_step=self.global_step,
                                                             learning_rate=self.lr,
                                                             optimizer=optimizer)
-        #self.merged_summary = tf.summary.merge_all()
+        self.merged_summary = tf.summary.merge_all()
 
     def load_weights_from_file(self, weight_file_path, sess, finetune=True):
         # weight_file_object = open(weight_file_path, 'rb')
