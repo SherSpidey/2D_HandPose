@@ -141,7 +141,7 @@ def draw_skeleton(img, coords):
         y2 = coords[bone[1], :][1]
         length = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         deg = math.degrees(math.atan2(y2 - y1, x2 - x1))
-        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2+0.5), 4), int(deg), 0, 360, 1)
+        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2+0.5), 3), int(deg), 0, 360, 1)
         cv2.fillConvexPoly(img, limb, color=color)
 
 #show the result
@@ -188,8 +188,12 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
 
     for eachpic in range(batch_labels.shape[0]):
         heatmap=[]
+        reverse_hm=np.ones(shape=(int(heatmap_size),int(heatmap_size)))
         for joints in range(batch_labels.shape[1]):
-            heatmap.append(make_gaussian(heatmap_size,gaussian_variance,batch_labels[eachpic][joints]//scale))
+            j_hm=make_gaussian(heatmap_size,gaussian_variance,batch_labels[eachpic][joints]//scale)
+            heatmap.append(j_hm)
+            reverse_hm-=j_hm
+        heatmap.append(reverse_hm)
         batch_heatmap.append(heatmap)
 
     batch_heatmap=np.array(batch_heatmap)
@@ -197,9 +201,9 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,gaussian_variance=1):
     batch_heatmap=np.transpose(batch_heatmap,(0,2,3,1))
     return batch_heatmap
 
-def get_coods(stage_heatmap,box_size=368):
+def get_coods(stage_heatmap,joints=21,box_size=368):
     annotation=np.zeros((21, 2))
-    heatmap=stage_heatmap[0,:,:,:].reshape(46,46,21)
+    heatmap=stage_heatmap[0,:,:,0:joints].reshape(46,46,21)
     heatmap=cv2.resize(heatmap,(box_size,box_size))
     for joint_num in range(21):
         joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),

@@ -7,7 +7,7 @@ from data_model import DS
 from operations import *
 
 
-def main():
+def main(argv):
     """
 
     :return:
@@ -34,7 +34,7 @@ def main():
                       SV.batch_size,
                       SV.sk_index,
                       stages=SV.stages,
-                      joints=SV.joint)
+                      joints=SV.joint+1)
     else:
         sk = CPM_Model(SV.input_size,
                       SV.heatmap_size,
@@ -94,16 +94,27 @@ def main():
                 #get heatmap
                 heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations)
 
-                totol_loss, stage_loss, _, current_lr, center_loss, \
-                stage_heatmap_np, global_step = sess.run([sk.total_loss,
-                                                          sk.stage_loss,
-                                                          sk.train_op,
-                                                          sk.lr,
-                                                          sk.stage_center_loss,
-                                                          sk.stage_heatmap,
-                                                          sk.global_step],
-                                                          feed_dict={sk.input_placeholder: images,
-                                                                    sk.heatmap_placeholder: heatmap})
+                if SV.model=="cpm_sk":
+                    totol_loss, stage_loss, _, current_lr, center_loss, \
+                    stage_heatmap_np, global_step = sess.run([sk.total_loss,
+                                                              sk.stage_loss,
+                                                              sk.train_op,
+                                                              sk.lr,
+                                                              sk.stage_center_loss,
+                                                              sk.stage_heatmap,
+                                                              sk.global_step],
+                                                              feed_dict={sk.input_placeholder: images,
+                                                                         sk.heatmap_placeholder: heatmap})
+                else:
+                    totol_loss, stage_loss, _, current_lr, \
+                    stage_heatmap_np, global_step = sess.run([sk.total_loss,
+                                                              sk.stage_loss,
+                                                              sk.train_op,
+                                                              sk.lr,
+                                                              sk.stage_heatmap,
+                                                              sk.global_step],
+                                                              feed_dict={sk.input_placeholder: images,
+                                                                        sk.heatmap_placeholder: heatmap})
                 if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
                     print("learning rate: ", current_lr)
@@ -111,9 +122,10 @@ def main():
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
-                    for i in range(SV.stages):
-                        print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
-                    print("")
+                    if SV.model=="spm_sk":
+                        for i in range(SV.stages):
+                            print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
+                        print("")
 
             if (epsoid + 1) % 3 == 0:
                 saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
