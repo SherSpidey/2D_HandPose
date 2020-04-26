@@ -51,7 +51,12 @@ class SK_Model(object):
 
                 self.sub_stage_img_feature = slim.conv2d(net, 128, [3, 3], scope='sub_stage_img_feature')
 
-            for stage in range(1, self.stages + 1):
+            with tf.variable_scope('stage_1'):
+                conv1 = slim.conv2d(self.sub_stage_img_feature, 512, [1, 1], scope='conv1')
+                self.stage_heatmap.append(slim.conv2d(conv1, self.joints, [1, 1], scope='stage_heatmap'))
+                self.stage_centermap.append(self.stage_heatmap[0][:,:,:,0][:,:,:,np.newaxis])
+
+            for stage in range(2, self.stages + 1):
                 center_map = self._get_center(stage)
                 self._sk_layers(stage, center_map)
 
@@ -61,16 +66,13 @@ class SK_Model(object):
                             activation_fn=tf.nn.relu,
                             weights_initializer=tf.contrib.layers.xavier_initializer()):
             with tf.variable_scope('stage_' + str(stage)):
-                if stage != 1:
-                    self.current_featuremap = tf.concat([self.stage_heatmap[stage - 2],
-                                                         self.sub_stage_img_feature],
-                                                        axis=3)
-                else:
-                    self.current_featuremap = self.sub_stage_img_feature
-                mid_net = slim.conv2d(self.current_featuremap, 512, [3,3], scope='mid_net1')
+                self.current_featuremap = tf.concat([self.stage_heatmap[stage - 2],
+                                                     self.sub_stage_img_feature],
+                                                     axis=3)
+                mid_net = slim.conv2d(self.current_featuremap, 128, [3,3], scope='mid_net1')
                 mid_net= slim.conv2d(mid_net, 128, [3, 3], scope='mid_net2')
-                mid_net = slim.conv2d(mid_net,128, [3, 3], scope='mid_net3')
-                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='mid_net4')
+                #mid_net = slim.conv2d(mid_net,128, [3, 3], scope='mid_net3')
+                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='mid_net3')
                 kps_0 = slim.conv2d(mid_net, 1, [1, 1], scope='key_points_0')
                 self.stage_centermap.append(kps_0)
         return kps_0
@@ -209,17 +211,17 @@ class SK_Model(object):
             sess.run(tf.assign(conv_kernel, loaded_kernel))
             sess.run(tf.assign(conv_bias, loaded_bias))
 
+            ## stage 1
+            conv_kernel = tf.get_variable('stage_1/conv1/weights')
+            conv_bias = tf.get_variable('stage_1/conv1/biases')
+
+            loaded_kernel = weights['conv6_1_CPM']
+            loaded_bias = weights['conv6_1_CPM_b']
+
+            sess.run(tf.assign(conv_kernel, loaded_kernel))
+            sess.run(tf.assign(conv_bias, loaded_bias))
+
             if finetune != True:
-                ## stage 1
-                conv_kernel = tf.get_variable('stage_1/conv1/weights')
-                conv_bias = tf.get_variable('stage_1/conv1/biases')
-
-                loaded_kernel = weights['conv6_1_CPM']
-                loaded_bias = weights['conv6_1_CPM_b']
-
-                sess.run(tf.assign(conv_kernel, loaded_kernel))
-                sess.run(tf.assign(conv_bias, loaded_bias))
-
                 conv_kernel = tf.get_variable('stage_1/stage_heatmap/weights')
                 conv_bias = tf.get_variable('stage_1/stage_heatmap/biases')
 
