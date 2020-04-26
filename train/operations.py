@@ -46,6 +46,16 @@ def load_data_image(datadir, index=0, num=1, mode='training'):
     images = np.array(images)
     return images
 
+# load images for testing
+def load_image(datadir,input_size=368):
+    images = []
+
+    file_assert(datadir)
+    image = cv2.imread(datadir)
+    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)
+
+    return image
+
 
 # Transfrom 3D coordinates into 2D coordinates
 def anno_trans(xyz, K):
@@ -141,7 +151,7 @@ def draw_skeleton(img, coords):
         y2 = coords[bone[1], :][1]
         length = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         deg = math.degrees(math.atan2(y2 - y1, x2 - x1))
-        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2+0.5), 3), int(deg), 0, 360, 1)
+        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2+0.5), 4), int(deg), 0, 360, 1)
         cv2.fillConvexPoly(img, limb, color=color)
 
 #show the result
