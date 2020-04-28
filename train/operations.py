@@ -52,7 +52,7 @@ def load_image(datadir,input_size=368):
 
     file_assert(datadir)
     image = cv2.imread(datadir)
-    image = cv2.resize(image, (368, 368), cv2.INTER_AREA)#cv2.INTER_LANCZOS4)#cv2.INTER_AREA
+    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)#cv2.INTER_LANCZOS4)#cv2.INTER_AREA
 
     return image
 
@@ -254,8 +254,31 @@ def frame_resize(frame,box_size=368):
 
     return box
 
+#kalman filter
+def kalman_init(joints=21):
+    kalman_array=[cv2.KalmanFilter(4,2) for _ in range(joints)]
+    for _, joint_kalman_filter in enumerate(kalman_array):
+        joint_kalman_filter.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]],
+                                                        np.float32)
+        joint_kalman_filter.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
+        joint_kalman_filter.processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+                                                       np.float32) * 3e-2
+    return kalman_array
 
+def movement_adjust(coords,kalman_array,joints=21,enable=True):
+    if enable==True:
+        output_coords=[]
+        for i in range(joints):
+            coord=coords[i].reshape((2, 1)).astype(np.float32)
+            kalman_array[i].correct(coord)
+            kalman_pred = kalman_array[i].predict()
+            coord=[int(kalman_pred[1]),int(kalman_pred[0])]
+            output_coords.append(coord)
+        output_coords=np.array(output_coords)
+    else:
+        output_coords=coords
 
+    return output_coords
 
 
 def load_vedio(v_dir):
