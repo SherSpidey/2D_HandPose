@@ -21,7 +21,7 @@ def main(argv):
     """
     image=load_image(image_dir)
     #image=cv2.blur(image,(3,3))
-    image = cv2.GaussianBlur(image, (9,9), 1)
+    #image = cv2.GaussianBlur(image, (3,3), 0)
     #image=cv2.bilateralFilter(image,0,15,15)
     #image=cv2.medianBlur(image, 3)  poor effect
     #image=cv2.blur(image,(4,4))   poor effect
@@ -88,6 +88,26 @@ def main(argv):
         """
         vedio oparetion
         """
+        kalman_array=kalman_init()
+        cap = cv2.VideoCapture(0)
+        while(cap.isOpened()):
+            ret, frame = cap.read()  # frame shape=1080x1920
+            frame = frame_resize(frame)
+            img = cv2.GaussianBlur(frame, (9, 9), 1)
+            img = img / 255.0 - 0.5
+
+            img = img[np.newaxis, :, :, :]
+
+            heatmap = sess.run(sk.stage_heatmap[SV.stages - 1], feed_dict={sk.input_placeholder: img})
+
+            lable = get_coods(heatmap)
+            lable=movement_adjust(lable,kalman_array)
+            draw_skeleton(frame, lable)
+            show_result(frame, lable,webcam=True)
+            if cv2.waitKey(1)  == ord('q'):
+                 break
+        cap.release()
+        cv2.destroyAllWindows()
         """cap = cv2.VideoCapture("./test/hand.mp4")
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         vw=cv2.VideoWriter('output.mp4',fourcc, 30.0, (368,368))
@@ -112,7 +132,7 @@ def main(argv):
         cap.release()
         vw.release()
         #cv2.destroyAllWindows()
-        """
+ 
         #normalize the input picture
         img=image/255.0-0.5
 
@@ -123,7 +143,7 @@ def main(argv):
         lable=get_coods(heatmap)
 
         show_result(image,lable)
-
+       """
 
 
 if __name__ == '__main__':

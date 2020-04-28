@@ -71,8 +71,10 @@ class SK_Model(object):
                                                      axis=3)
                 mid_net = slim.conv2d(self.current_featuremap, 128, [7,7], scope='mid_net1')
                 mid_net= slim.conv2d(mid_net, 128, [7, 7], scope='mid_net2')
-                #mid_net = slim.conv2d(mid_net,128, [3, 3], scope='mid_net3')
-                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='mid_net3')
+                mid_net = slim.conv2d(mid_net,128, [7, 7], scope='mid_net3')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='mid_net4')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='mid_net5')
+                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='mid_net6')
                 kps_0 = slim.conv2d(mid_net, 1, [1, 1], scope='key_points_0')
                 self.stage_centermap.append(kps_0)
         return kps_0
@@ -86,8 +88,11 @@ class SK_Model(object):
             with tf.variable_scope('stage_' + str(stage), reuse=tf.AUTO_REUSE):
                 reson_map = tf.concat([center_map, self.current_featuremap], axis=3)
                 mid_net = slim.conv2d(reson_map, 128,  [7, 7], scope='midnet1_1')
-                #mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet1_2')
-                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet1_2')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet1_2')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet1_3')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet1_4')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet1_5')
+                mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet1_6')
                 key_points = slim.conv2d(mid_net, 5, [1, 1], scope='key_points_1')
                 heatmap = tf.concat([center_map, key_points], axis=3)
                 for i in range(1, 4):
@@ -95,8 +100,11 @@ class SK_Model(object):
                                                   self.current_featuremap],
                                                  axis=3)
                     mid_net = slim.conv2d(reson_featuremap, 128, [7, 7], scope='midnet_' + str(i + 1) + '1')
-                    #mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '2')
-                    mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet_' + str(i + 1) + '2')
+                    mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '2')
+                    mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '3')
+                    mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '4')
+                    mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '5')
+                    mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet_' + str(i + 1) + '6')
                     key_points = slim.conv2d(mid_net, 5, [1, 1], scope='key_points_' + str(i + 1))
                     heatmap = tf.concat([heatmap, key_points], axis=3)
 

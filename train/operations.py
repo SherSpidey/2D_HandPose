@@ -155,12 +155,13 @@ def draw_skeleton(img, coords):
         cv2.fillConvexPoly(img, limb, color=color)
 
 #show the result
-def show_result(img,annotation,num=1):
+def show_result(img,annotation,webcam=False,num=1):
     if num==1:
         draw_skeleton(img,annotation)
         cv2.imshow("Result",img)
-        if cv2.waitKey(0) == 'q':
-            cv2.destroyAllWindows()
+        if webcam==False:
+            if cv2.waitKey(0) == 'q':
+                cv2.destroyAllWindows()
     else:
         for i in range(num):
             draw_skeleton(img[i], annotation[i])
@@ -212,22 +213,35 @@ def generate_heatmap(input_size,heatmap_size,batch_labels,model="cpm_sk",gaussia
     batch_heatmap=np.transpose(batch_heatmap,(0,2,3,1))
     return batch_heatmap
 
-def get_coods(stage_heatmap,joints=21,box_size=368):
-    annotation=np.zeros((21, 2))
-    heatmap=stage_heatmap[0,:,:,0:joints].reshape(46,46,21)
-    heatmap=cv2.resize(heatmap,(box_size,box_size))
-    for joint_num in range(21):
-        joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),
-                                       (box_size, box_size))
-        annotation[joint_num,:]=[joint_coord[1],joint_coord[0]]
-    annotation = annotation.astype(int)
+def get_coods(stage_heatmap,joints=21,box_size=368,train=False):
+    if train==False:
+        annotation=np.zeros((21, 2))
+        heatmap=stage_heatmap[0,:,:,0:joints].reshape(46,46,21)
+        heatmap=cv2.resize(heatmap,(box_size,box_size))
+        for joint_num in range(21):
+            joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),
+                                           (box_size, box_size))
+            annotation[joint_num,:]=[joint_coord[1],joint_coord[0]]
+        annotation = annotation.astype(int)
+    else:
+        annotation=[]
+        for i in range(stage_heatmap.shape[0]):
+            joint_coords = np.zeros((21, 2))
+            heatmap = stage_heatmap[i, :, :, 0:joints].reshape(46, 46, 21)
+            heatmap = cv2.resize(heatmap, (box_size, box_size))
+            for joint_num in range(21):
+                joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),
+                                               (box_size, box_size))
+                joint_coords[joint_num, :] = [joint_coord[1], joint_coord[0]]
+            annotation.append(joint_coords)
+        annotation=np.array(annotation).astype(int)
     return annotation
 
 #testing operation-functions
 
 def frame_resize(frame,box_size=368):
     box=np.ones((box_size,box_size,3),dtype="uint8")*128
-    if frame.shape[0]>frame.shape[1]:
+    if frame.shape[0]<frame.shape[1]:
         scale = box_size / frame.shape[0] * 1.0
         img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
         img_w=img.shape[1]
@@ -272,7 +286,7 @@ def movement_adjust(coords,kalman_array,joints=21,enable=True):
             coord=coords[i].reshape((2, 1)).astype(np.float32)
             kalman_array[i].correct(coord)
             kalman_pred = kalman_array[i].predict()
-            coord=[int(kalman_pred[1]),int(kalman_pred[0])]
+            coord=[int(kalman_pred[0]),int(kalman_pred[1])]
             output_coords.append(coord)
         output_coords=np.array(output_coords)
     else:
