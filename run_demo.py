@@ -20,6 +20,14 @@ def main(argv):
     load image
     """
     image=load_image(image_dir)
+    #image=cv2.blur(image,(3,3))
+    image = cv2.GaussianBlur(image, (9,9), 1)
+    #image=cv2.bilateralFilter(image,0,15,15)
+    #image=cv2.medianBlur(image, 3)  poor effect
+    #image=cv2.blur(image,(4,4))   poor effect
+    #kernel=np.ones((3,3),np.uint8)
+    #image = cv2.erode(image,kernel)
+    #image = cv2.dilate(image, kernel)
     """
     load CPM model
     """
@@ -40,7 +48,7 @@ def main(argv):
     build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="Adam")#"RMSProp"
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")#"RMSProp"
     print('\n=====Model Build=====\n')
 
     with tf.Session() as sess:
@@ -77,6 +85,34 @@ def main(argv):
                         var = tf.get_variable(variable.name.split(':0')[0])
                         print(variable.name, np.mean(sess.run(var)))
 
+        """
+        vedio oparetion
+        """
+        """cap = cv2.VideoCapture("./test/hand.mp4")
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        vw=cv2.VideoWriter('output.mp4',fourcc, 30.0, (368,368))
+        while (cap.isOpened()):
+            ret, frame = cap.read()  # frame shape=1080x1920
+
+            frame = frame_resize(frame)
+            img = cv2.GaussianBlur(frame, (9, 9), 1)
+            img = img / 255.0 - 0.5
+
+            img = img[np.newaxis, :, :, :]
+
+            heatmap = sess.run(sk.stage_heatmap[SV.stages - 1], feed_dict={sk.input_placeholder: img})
+
+            lable = get_coods(heatmap)
+            draw_skeleton(frame, lable)
+            vw.write(frame)
+            #show_result(frame, lable)
+            #if cv2.waitKey(17) == "q":
+                #break
+
+        cap.release()
+        vw.release()
+        #cv2.destroyAllWindows()
+        """
         #normalize the input picture
         img=image/255.0-0.5
 
@@ -87,7 +123,6 @@ def main(argv):
         lable=get_coods(heatmap)
 
         show_result(image,lable)
-
 
 
 

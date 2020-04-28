@@ -1,4 +1,4 @@
-import cv2
+import cv2#.cv2 as cv2
 import json
 import os
 import numpy as np
@@ -52,7 +52,7 @@ def load_image(datadir,input_size=368):
 
     file_assert(datadir)
     image = cv2.imread(datadir)
-    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)
+    image = cv2.resize(image, (368, 368), cv2.INTER_AREA)#cv2.INTER_LANCZOS4)#cv2.INTER_AREA
 
     return image
 
@@ -222,6 +222,59 @@ def get_coods(stage_heatmap,joints=21,box_size=368):
         annotation[joint_num,:]=[joint_coord[1],joint_coord[0]]
     annotation = annotation.astype(int)
     return annotation
+
+#testing operation-functions
+
+def frame_resize(frame,box_size=368):
+    box=np.ones((box_size,box_size,3),dtype="uint8")*128
+    if frame.shape[0]>frame.shape[1]:
+        scale = box_size / frame.shape[0] * 1.0
+        img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
+        img_w=img.shape[1]
+        if img_w<box_size:
+            offset = img_w % 2
+            # make the origin image be the center
+            box[:,
+            int(box_size / 2 - math.floor(img_w / 2)):int(box_size / 2 + math.floor(img_w / 2) + offset), :] = img
+        else:
+            # cut and get the center of the origin image
+            box = img[:,int(img_w / 2 - box_size / 2):int(img_w / 2 + box_size / 2), :]
+    else:
+        scale = box_size / frame.shape[1] * 1.0
+        img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
+        img_h = img.shape[0]
+        if img_h < box_size:
+            offset = img_h % 2
+            # make the origin image be the center
+            box[int(box_size / 2 - math.floor(img_h / 2)):int(box_size / 2 + math.floor(img_h / 2) + offset),
+            :, :] = img
+        else:
+            # cut and get the center of the origin image
+            box = img[int(img_h / 2 - box_size / 2):int(img_h / 2 + box_size / 2), :, :]
+
+    return box
+
+
+
+
+
+def load_vedio(v_dir):
+    cap = cv2.VideoCapture(v_dir)
+    #fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    #vw=cv2.VideoWriter('output.mp4',fourcc, 30.0, (368,368))
+    while (cap.isOpened()):
+        ret, frame = cap.read() #frame shape=1080x1920
+        frame=frame_resize(frame)
+        #vw.write(frame)
+        cv2.imshow('frame', frame)
+
+        if cv2.waitKey(17)=="q":
+            break
+
+    cap.release()
+    #vw.release()
+    cv2.destroyAllWindows()
+
 
 
 
