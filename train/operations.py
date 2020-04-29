@@ -241,7 +241,7 @@ def get_coods(stage_heatmap,joints=21,box_size=368,train=False):
 
 def frame_resize(frame,box_size=368):
     box=np.ones((box_size,box_size,3),dtype="uint8")*128
-    if frame.shape[0]<frame.shape[1]:
+    if frame.shape[0]>frame.shape[1]:
         scale = box_size / frame.shape[0] * 1.0
         img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
         img_w=img.shape[1]

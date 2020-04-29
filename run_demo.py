@@ -88,7 +88,7 @@ def main(argv):
         """
         vedio oparetion
         """
-        kalman_array=kalman_init()
+        """kalman_array=kalman_init()
         cap = cv2.VideoCapture(0)
         while(cap.isOpened()):
             ret, frame = cap.read()  # frame shape=1080x1920
@@ -108,12 +108,15 @@ def main(argv):
                  break
         cap.release()
         cv2.destroyAllWindows()
-        """cap = cv2.VideoCapture("./test/hand.mp4")
+        """
+        cap = cv2.VideoCapture("./test/hand.mp4")
+        kalman_array = kalman_init()
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        vw=cv2.VideoWriter('output.mp4',fourcc, 30.0, (368,368))
-        while (cap.isOpened()):
+        vw=cv2.VideoWriter('output.mp4',fourcc, 24.0, (368,368))
+        while(cap.isOpened()):
             ret, frame = cap.read()  # frame shape=1080x1920
-
+            if ret==False:
+                break
             frame = frame_resize(frame)
             img = cv2.GaussianBlur(frame, (9, 9), 1)
             img = img / 255.0 - 0.5
@@ -123,17 +126,18 @@ def main(argv):
             heatmap = sess.run(sk.stage_heatmap[SV.stages - 1], feed_dict={sk.input_placeholder: img})
 
             lable = get_coods(heatmap)
+            lable = movement_adjust(lable, kalman_array)
             draw_skeleton(frame, lable)
             vw.write(frame)
-            #show_result(frame, lable)
-            #if cv2.waitKey(17) == "q":
+            #show_result(frame, lable,webcam=True)
+            #if cv2.waitKey(17) == 113:
                 #break
 
         cap.release()
         vw.release()
         #cv2.destroyAllWindows()
- 
-        #normalize the input picture
+
+        """#normalize the input picture
         img=image/255.0-0.5
 
         img=img[np.newaxis,:,:,:]
@@ -143,8 +147,8 @@ def main(argv):
         lable=get_coods(heatmap)
 
         show_result(image,lable)
-       """
 
+"""
 
 if __name__ == '__main__':
     tf.app.run()
