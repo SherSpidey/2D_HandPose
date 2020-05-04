@@ -4,7 +4,7 @@ from SK_hand import SK_Model
 from cpm_hand import CPM_Model
 from config import SV
 from operations import *
-
+#os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 def main(argv):
     """
@@ -126,7 +126,7 @@ def main(argv):
             heatmap = sess.run(sk.stage_heatmap[SV.stages - 1], feed_dict={sk.input_placeholder: img})
 
             lable = get_coods(heatmap)
-            lable = movement_adjust(lable, kalman_array)
+            #lable = movement_adjust(lable, kalman_array)
             draw_skeleton(frame, lable)
             vw.write(frame)
             #show_result(frame, lable,webcam=True)
