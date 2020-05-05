@@ -6,9 +6,9 @@ import tensorflow.contrib.slim as slim
 class CPM_Model(object):
     def __init__(self, input_size, heatmap_size, batch_size, stages=3, joints=21):
         self.stages = stages
-        self.input_size=input_size
+        self.input_size = input_size
         self.stage_heatmap = []
-        self.heatmap_size=heatmap_size
+        self.heatmap_size = heatmap_size
         self.stage_loss = [0] * stages
         self.total_loss = 0
         self.learning_rate = 0
@@ -20,7 +20,7 @@ class CPM_Model(object):
                                                 name='input_placeholder')
 
         self.heatmap_placeholder = tf.placeholder(dtype=tf.float32,
-                                                  shape=(None, heatmap_size, heatmap_size,joints),
+                                                  shape=(None, heatmap_size, heatmap_size, joints),
                                                   name='heatmap_placeholder')
 
     def build_model(self):
@@ -74,7 +74,7 @@ class CPM_Model(object):
                 self.current_heatmap = slim.conv2d(mid_net, self.joints, [1, 1], scope='mid_conv7')
                 self.stage_heatmap.append(self.current_heatmap)
 
-    def build_loss(self, lr, lr_decay_rate, lr_decay_step,optimizer='Adam'):
+    def build_loss(self, lr, lr_decay_rate, lr_decay_step, optimizer='Adam'):
         self.total_loss = 0
         self.learning_rate = lr
         self.lr_decay_rate = lr_decay_rate
@@ -82,14 +82,14 @@ class CPM_Model(object):
 
         for stage in range(self.stages):
             with tf.variable_scope('stage' + str(stage + 1) + '_loss'):
-                self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage][:,:,:,0:self.joints-1] -
-                                                       self.heatmap_placeholder[:,:,:,0:self.joints-1],
+                self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage][:, :, :, 0:self.joints - 1] -
+                                                       self.heatmap_placeholder[:, :, :, 0:self.joints - 1],
                                                        name='l2_loss') / self.batch_size
             tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
 
         with tf.variable_scope('total_loss'):
             for stage in range(self.stages):
-                self.total_loss += self.stage_loss[stage]#*(stage+1)/self.stages
+                self.total_loss += self.stage_loss[stage]  # *(stage+1)/self.stages
             tf.summary.scalar('total loss', self.total_loss)
 
         with tf.variable_scope('train'):

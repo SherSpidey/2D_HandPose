@@ -8,3 +8,14 @@ Normalize the input picture;\
 Replace the data operation function with opencv and PIL;\
 Use fine-tune\
 Add camera and Video function.
+
+Version updated time:2020.5.5\
+Contents:\
+Add GUI.\
+Run main.py to login GUI.
+
+Requirements:\
+tensorflow-gpu<=2.0.0\
+opencv-python\
+pyqt5,pyqt5-tools\
+qimage2ndarray\

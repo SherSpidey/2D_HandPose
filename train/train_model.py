@@ -28,7 +28,7 @@ def main(argv):
     """
     load CPM model
     """
-    if SV.model=="cpm_sk":
+    if SV.model == "cpm_sk":
         sk = SK_Model(SV.input_size,
                       SV.heatmap_size,
                       SV.batch_size,
@@ -37,15 +37,15 @@ def main(argv):
                       joints=SV.joint)
     else:
         sk = CPM_Model(SV.input_size,
-                      SV.heatmap_size,
-                      SV.batch_size,
-                      stages=SV.stages,
-                      joints=SV.joint+1)
+                       SV.heatmap_size,
+                       SV.batch_size,
+                       stages=SV.stages,
+                       joints=SV.joint + 1)
     """
     build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")#"RMSProp"
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")  # "RMSProp"
     print('\n=====Model Build=====\n')
 
     """
@@ -54,7 +54,7 @@ def main(argv):
     with tf.Session() as sess:
 
         # Create tensorboard
-        #log_writer = tf.summary.FileWriter(SV.log_save_path, sess.graph)
+        # log_writer = tf.summary.FileWriter(SV.log_save_path, sess.graph)
 
         # Create model saver
         saver = tf.train.Saver(max_to_keep=None)
@@ -66,7 +66,7 @@ def main(argv):
         if SV.pretrained_model_name != "":
             print("Now loading model!")
             if SV.pretrained_model_name.endswith('.pkl'):
-                if SV.model=="cpm_sk":
+                if SV.model == "cpm_sk":
                     sk.load_weights_from_file(pretrained_model_dir, sess, finetune=True)
                 else:
                     sk.load_weights_from_file(pretrained_model_dir, sess, finetune=False)
@@ -93,13 +93,13 @@ def main(argv):
             # Forward and update weights
             for turn in range(SV.epo_turns):
                 images, annotations = data.NextBatch()
-                #normalize the input picture
-                images=images/255.0-0.5
-                #get heatmap
-                heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations,model=SV.model)
+                # normalize the input picture
+                images = images / 255.0 - 0.5
+                # get heatmap
+                heatmap = generate_heatmap(SV.input_size, SV.heatmap_size, annotations, model=SV.model)
 
-                if SV.model=="cpm_sk":
-                    totol_loss, stage_loss, _,  current_lr, center_loss, \
+                if SV.model == "cpm_sk":
+                    totol_loss, stage_loss, _, current_lr, center_loss, \
                     stage_heatmap_np, global_step = sess.run([sk.total_loss,
                                                               sk.stage_loss,
                                                               sk.train_op,
@@ -107,10 +107,10 @@ def main(argv):
                                                               sk.stage_center_loss,
                                                               sk.stage_heatmap,
                                                               sk.global_step,
-                                                              #sk.merged_summary
+                                                              # sk.merged_summary
                                                               ],
-                                                              feed_dict={sk.input_placeholder: images,
-                                                                         sk.heatmap_placeholder: heatmap})
+                                                             feed_dict={sk.input_placeholder: images,
+                                                                        sk.heatmap_placeholder: heatmap})
                 else:
                     totol_loss, stage_loss, _, current_lr, \
                     stage_heatmap_np, global_step = sess.run([sk.total_loss,
@@ -119,12 +119,12 @@ def main(argv):
                                                               sk.lr,
                                                               sk.stage_heatmap,
                                                               sk.global_step,
-                                                              #sk.merged_summary
+                                                              # sk.merged_summary
                                                               ],
-                                                              feed_dict={sk.input_placeholder: images,
+                                                             feed_dict={sk.input_placeholder: images,
                                                                         sk.heatmap_placeholder: heatmap})
                 # Write logs
-                #log_writer.add_summary(summaries, global_step)
+                # log_writer.add_summary(summaries, global_step)
 
                 if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
@@ -133,7 +133,7 @@ def main(argv):
                     for i in range(SV.stages):
                         print("stage%d loss: %f" % (i + 1, stage_loss[i]), end="  ")
                     print("")
-                    if SV.model=="cpm_sk":
+                    if SV.model == "cpm_sk":
                         for i in range(SV.stages):
                             print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
                         print("")

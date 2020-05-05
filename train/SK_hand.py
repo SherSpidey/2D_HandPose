@@ -13,16 +13,16 @@ class SK_Model(object):
         self.stages = stages
         self.batch_size = batch_size
         self.stage_heatmap = []
-        self.stage_centermap=[]
+        self.stage_centermap = []
         self.stage_loss = [0] * stages
-        self.stage_center_loss=[0]*stages
+        self.stage_center_loss = [0] * stages
 
         self.input_placeholder = tf.placeholder(dtype=tf.float32,
                                                 shape=(None, self.input_size, self.input_size, 3),
                                                 name='input_placeholder')
 
         self.heatmap_placeholder = tf.placeholder(dtype=tf.float32,
-                                                  shape=(None,self.heatmap_size, self.heatmap_size, self.joints),
+                                                  shape=(None, self.heatmap_size, self.heatmap_size, self.joints),
                                                   name='heatmap_placeholder')
 
     def build_model(self):
@@ -54,7 +54,7 @@ class SK_Model(object):
             with tf.variable_scope('stage_1'):
                 conv1 = slim.conv2d(self.sub_stage_img_feature, 512, [1, 1], scope='conv1')
                 self.stage_heatmap.append(slim.conv2d(conv1, self.joints, [1, 1], scope='stage_heatmap'))
-                self.stage_centermap.append(self.stage_heatmap[0][:,:,:,0][:,:,:,np.newaxis])
+                self.stage_centermap.append(self.stage_heatmap[0][:, :, :, 0][:, :, :, np.newaxis])
 
             for stage in range(2, self.stages + 1):
                 center_map = self._get_center(stage)
@@ -68,12 +68,12 @@ class SK_Model(object):
             with tf.variable_scope('stage_' + str(stage)):
                 self.current_featuremap = tf.concat([self.stage_heatmap[stage - 2],
                                                      self.sub_stage_img_feature],
-                                                     axis=3)
-                mid_net = slim.conv2d(self.current_featuremap, 128, [7,7], scope='mid_net1')
-                mid_net= slim.conv2d(mid_net, 128, [7,7], scope='mid_net2')
-                mid_net = slim.conv2d(mid_net,128, [5,5], scope='mid_net3')
-                mid_net = slim.conv2d(mid_net, 128, [5,5], scope='mid_net4')
-                mid_net = slim.conv2d(mid_net, 128, [3,3], scope='mid_net5')
+                                                    axis=3)
+                mid_net = slim.conv2d(self.current_featuremap, 128, [7, 7], scope='mid_net1')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='mid_net2')
+                mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='mid_net3')
+                mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='mid_net4')
+                mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='mid_net5')
                 mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='mid_net6')
                 kps_0 = slim.conv2d(mid_net, 1, [1, 1], scope='key_points_0')
                 self.stage_centermap.append(kps_0)
@@ -87,11 +87,11 @@ class SK_Model(object):
                             weights_initializer=tf.contrib.layers.xavier_initializer()):
             with tf.variable_scope('stage_' + str(stage), reuse=tf.AUTO_REUSE):
                 reson_map = tf.concat([center_map, self.current_featuremap], axis=3)
-                mid_net = slim.conv2d(reson_map, 128,  [7,7], scope='midnet1_1')
-                mid_net = slim.conv2d(mid_net, 128, [7,7], scope='midnet1_2')
-                mid_net = slim.conv2d(mid_net, 128, [5,5], scope='midnet1_3')
-                mid_net = slim.conv2d(mid_net, 128, [5,5], scope='midnet1_4')
-                mid_net = slim.conv2d(mid_net, 128, [3,3], scope='midnet1_5')
+                mid_net = slim.conv2d(reson_map, 128, [7, 7], scope='midnet1_1')
+                mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet1_2')
+                mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='midnet1_3')
+                mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='midnet1_4')
+                mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet1_5')
                 mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet1_6')
                 key_points = slim.conv2d(mid_net, 5, [1, 1], scope='key_points_1')
                 heatmap = tf.concat([center_map, key_points], axis=3)
@@ -99,11 +99,11 @@ class SK_Model(object):
                     reson_featuremap = tf.concat([key_points,
                                                   self.current_featuremap],
                                                  axis=3)
-                    mid_net = slim.conv2d(reson_featuremap, 128, [7,7], scope='midnet_' + str(i + 1) + '1')
-                    mid_net = slim.conv2d(mid_net, 128,[7,7], scope='midnet_' + str(i + 1) + '2')
-                    mid_net = slim.conv2d(mid_net, 128, [5,5], scope='midnet_' + str(i + 1) + '3')
-                    mid_net = slim.conv2d(mid_net, 128,[5,5], scope='midnet_' + str(i + 1) + '4')
-                    mid_net = slim.conv2d(mid_net, 128,[3,3], scope='midnet_' + str(i + 1) + '5')
+                    mid_net = slim.conv2d(reson_featuremap, 128, [7, 7], scope='midnet_' + str(i + 1) + '1')
+                    mid_net = slim.conv2d(mid_net, 128, [7, 7], scope='midnet_' + str(i + 1) + '2')
+                    mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='midnet_' + str(i + 1) + '3')
+                    mid_net = slim.conv2d(mid_net, 128, [5, 5], scope='midnet_' + str(i + 1) + '4')
+                    mid_net = slim.conv2d(mid_net, 128, [3, 3], scope='midnet_' + str(i + 1) + '5')
                     mid_net = slim.conv2d(mid_net, 128, [1, 1], scope='midnet_' + str(i + 1) + '6')
                     key_points = slim.conv2d(mid_net, 5, [1, 1], scope='key_points_' + str(i + 1))
                     heatmap = tf.concat([heatmap, key_points], axis=3)
@@ -113,7 +113,7 @@ class SK_Model(object):
                 mid_map = tf.concat([mid_map, heatmap[:, :, :, self.SK[i]][:, :, :, np.newaxis]], axis=3)
             self.stage_heatmap.append(mid_map)
 
-    def build_loss(self, lr, lr_decay_rate, lr_decay_step, optimizer='Adam'):#RMSProp
+    def build_loss(self, lr, lr_decay_rate, lr_decay_step, optimizer='Adam'):  # RMSProp
         self.total_loss = 0
         self.learning_rate = lr
         self.lr_decay_rate = lr_decay_rate
@@ -124,13 +124,14 @@ class SK_Model(object):
                 self.stage_loss[stage] = tf.nn.l2_loss(self.stage_heatmap[stage] - self.heatmap_placeholder,
                                                        name='l2_loss') / self.batch_size
             with tf.variable_scope('stage' + str(stage + 1) + 'center_loss'):
-                self.stage_center_loss[stage] = tf.nn.l2_loss(self.stage_centermap[stage] - self.heatmap_placeholder[:,:,:,0][:,:,:,np.newaxis],
-                                                       name='l2_loss')*5/ self.batch_size
+                self.stage_center_loss[stage] = tf.nn.l2_loss(
+                    self.stage_centermap[stage] - self.heatmap_placeholder[:, :, :, 0][:, :, :, np.newaxis],
+                    name='l2_loss') * 5 / self.batch_size
             tf.summary.scalar('stage' + str(stage + 1) + '_loss', self.stage_loss[stage])
 
         with tf.variable_scope('total_loss'):
             for stage in range(self.stages):
-                self.total_loss += self.stage_loss[stage]#self.stage_center_loss[stage]
+                self.total_loss += self.stage_loss[stage]  # self.stage_center_loss[stage]
             tf.summary.scalar('total loss', self.total_loss)
 
         with tf.variable_scope('train'):
@@ -250,4 +251,3 @@ class SK_Model(object):
 
                         sess.run(tf.assign(conv_kernel, loaded_kernel))
                         sess.run(tf.assign(conv_bias, loaded_bias))
-

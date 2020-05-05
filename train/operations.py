@@ -1,4 +1,4 @@
-import cv2#.cv2 as cv2
+import cv2  # .cv2 as cv2
 import json
 import os
 import numpy as np
@@ -46,13 +46,12 @@ def load_data_image(datadir, index=0, num=1, mode='training'):
     images = np.array(images)
     return images
 
-# load images for testing
-def load_image(datadir,input_size=368):
-    images = []
 
+# load images for testing
+def load_image(datadir, input_size=368):
     file_assert(datadir)
     image = cv2.imread(datadir)
-    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)#cv2.INTER_LANCZOS4)#cv2.INTER_AREA
+    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)  # cv2.INTER_LANCZOS4)#cv2.INTER_AREA
 
     return image
 
@@ -151,25 +150,28 @@ def draw_skeleton(img, coords):
         y2 = coords[bone[1], :][1]
         length = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
         deg = math.degrees(math.atan2(y2 - y1, x2 - x1))
-        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2+0.5), 4), int(deg), 0, 360, 1)
+        limb = cv2.ellipse2Poly((int((x1 + x2) / 2), int((y1 + y2) / 2)), (int(length / 2 + 0.5), 4), int(deg), 0, 360,
+                                1)
         cv2.fillConvexPoly(img, limb, color=color)
 
-#show the result
-def show_result(img,annotation,webcam=False,num=1):
-    if num==1:
-        draw_skeleton(img,annotation)
-        cv2.imshow("Result",img)
-        if webcam==False:
+
+# show the result
+def show_result(img, annotation, webcam=False, num=1):
+    if num == 1:
+        draw_skeleton(img, annotation)
+        cv2.imshow("Result", img)
+        if webcam == False:
             if cv2.waitKey(0) == 'q':
                 cv2.destroyAllWindows()
     else:
         for i in range(num):
             draw_skeleton(img[i], annotation[i])
-            cv2.imshow("Result"+str(i+1), img[i])
+            cv2.imshow("Result" + str(i + 1), img[i])
         if cv2.waitKey(0) == 'q':
             cv2.destroyAllWindows()
 
-#heat map operations
+
+# heat map operations
 def make_gaussian(output_size, gaussian_variance=3, location=None):
     """ Make a square gaussian kernel.
     size is the length of a side of the square
@@ -185,46 +187,48 @@ def make_gaussian(output_size, gaussian_variance=3, location=None):
         x0 = location[0]
         y0 = location[1]
 
-    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) /2.0/gaussian_variance /gaussian_variance)
+    return np.exp(-((x - x0) ** 2 + (y - y0) ** 2) / 2.0 / gaussian_variance / gaussian_variance)
 
-def generate_heatmap(input_size,heatmap_size,batch_labels,model="cpm_sk",gaussian_variance=1):
+
+def generate_heatmap(input_size, heatmap_size, batch_labels, model="cpm_sk", gaussian_variance=1):
     """
     generate heatmap from joints
     """
-    scale=input_size//heatmap_size
-    batch_heatmap=[]
+    scale = input_size // heatmap_size
+    batch_heatmap = []
 
-    if len(batch_labels.shape)==2:
-        batch_labels=batch_labels[np.newaxis,:,:]
+    if len(batch_labels.shape) == 2:
+        batch_labels = batch_labels[np.newaxis, :, :]
 
     for eachpic in range(batch_labels.shape[0]):
-        heatmap=[]
-        reverse_hm=np.zeros(shape=(int(heatmap_size),int(heatmap_size)))
+        heatmap = []
+        reverse_hm = np.zeros(shape=(int(heatmap_size), int(heatmap_size)))
         for joints in range(batch_labels.shape[1]):
-            j_hm=make_gaussian(heatmap_size,gaussian_variance,batch_labels[eachpic][joints]//scale)
+            j_hm = make_gaussian(heatmap_size, gaussian_variance, batch_labels[eachpic][joints] // scale)
             heatmap.append(j_hm)
-            #reverse_hm-=j_hm
-        if model=="cpm":
+            # reverse_hm-=j_hm
+        if model == "cpm":
             heatmap.append(reverse_hm)
         batch_heatmap.append(heatmap)
 
-    batch_heatmap=np.array(batch_heatmap)
-    #need to trans-shape to adapt the model output: 28x28X21
-    batch_heatmap=np.transpose(batch_heatmap,(0,2,3,1))
+    batch_heatmap = np.array(batch_heatmap)
+    # need to trans-shape to adapt the model output: 28x28X21
+    batch_heatmap = np.transpose(batch_heatmap, (0, 2, 3, 1))
     return batch_heatmap
 
-def get_coods(stage_heatmap,joints=21,box_size=368,train=False):
-    if train==False:
-        annotation=np.zeros((21, 2))
-        heatmap=stage_heatmap[0,:,:,0:joints].reshape(46,46,21)
-        heatmap=cv2.resize(heatmap,(box_size,box_size))
+
+def get_coods(stage_heatmap, joints=21, box_size=368, train=False):
+    if train == False:
+        annotation = np.zeros((21, 2))
+        heatmap = stage_heatmap[0, :, :, 0:joints].reshape(46, 46, 21)
+        heatmap = cv2.resize(heatmap, (box_size, box_size))
         for joint_num in range(21):
             joint_coord = np.unravel_index(np.argmax(heatmap[:, :, joint_num]),
                                            (box_size, box_size))
-            annotation[joint_num,:]=[joint_coord[1],joint_coord[0]]
+            annotation[joint_num, :] = [joint_coord[1], joint_coord[0]]
         annotation = annotation.astype(int)
     else:
-        annotation=[]
+        annotation = []
         for i in range(stage_heatmap.shape[0]):
             joint_coords = np.zeros((21, 2))
             heatmap = stage_heatmap[i, :, :, 0:joints].reshape(46, 46, 21)
@@ -234,25 +238,26 @@ def get_coods(stage_heatmap,joints=21,box_size=368,train=False):
                                                (box_size, box_size))
                 joint_coords[joint_num, :] = [joint_coord[1], joint_coord[0]]
             annotation.append(joint_coords)
-        annotation=np.array(annotation).astype(int)
+        annotation = np.array(annotation).astype(int)
     return annotation
 
-#testing operation-functions
 
-def frame_resize(frame,box_size=368):
-    box=np.ones((box_size,box_size,3),dtype="uint8")*128
-    if frame.shape[0]>frame.shape[1]:
+# testing operation-functions
+
+def frame_resize(frame, box_size=368):
+    box = np.ones((box_size, box_size, 3), dtype="uint8") * 128
+    if frame.shape[0] > frame.shape[1]:
         scale = box_size / frame.shape[0] * 1.0
         img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
-        img_w=img.shape[1]
-        if img_w<box_size:
+        img_w = img.shape[1]
+        if img_w < box_size:
             offset = img_w % 2
             # make the origin image be the center
             box[:,
             int(box_size / 2 - math.floor(img_w / 2)):int(box_size / 2 + math.floor(img_w / 2) + offset), :] = img
         else:
             # cut and get the center of the origin image
-            box = img[:,int(img_w / 2 - box_size / 2):int(img_w / 2 + box_size / 2), :]
+            box = img[:, int(img_w / 2 - box_size / 2):int(img_w / 2 + box_size / 2), :]
     else:
         scale = box_size / frame.shape[1] * 1.0
         img = cv2.resize(frame, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LANCZOS4)
@@ -268,9 +273,10 @@ def frame_resize(frame,box_size=368):
 
     return box
 
-#kalman filter
+
+# kalman filter
 def kalman_init(joints=21):
-    kalman_array=[cv2.KalmanFilter(4,2) for _ in range(joints)]
+    kalman_array = [cv2.KalmanFilter(4, 2) for _ in range(joints)]
     for _, joint_kalman_filter in enumerate(kalman_array):
         joint_kalman_filter.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]],
                                                         np.float32)
@@ -279,39 +285,33 @@ def kalman_init(joints=21):
                                                        np.float32) * 3e-2
     return kalman_array
 
-def movement_adjust(coords,kalman_array,joints=21,enable=True):
-    if enable==True:
-        output_coords=[]
+
+def movement_adjust(coords, kalman_array, joints=21, enable=True):
+    if enable == True:
+        output_coords = []
         for i in range(joints):
-            coord=coords[i].reshape((2, 1)).astype(np.float32)
+            coord = coords[i].reshape((2, 1)).astype(np.float32)
             kalman_array[i].correct(coord)
             kalman_pred = kalman_array[i].predict()
-            coord=[int(kalman_pred[0]),int(kalman_pred[1])]
+            coord = [int(kalman_pred[0]), int(kalman_pred[1])]
             output_coords.append(coord)
-        output_coords=np.array(output_coords)
+        output_coords = np.array(output_coords)
     else:
-        output_coords=coords
+        output_coords = coords
 
     return output_coords
 
 
 def load_vedio(v_dir):
     cap = cv2.VideoCapture(v_dir)
-    #fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    #vw=cv2.VideoWriter('output.mp4',fourcc, 30.0, (368,368))
     while (cap.isOpened()):
-        ret, frame = cap.read() #frame shape=1080x1920
-        frame=frame_resize(frame)
-        #vw.write(frame)
+        ret, frame = cap.read()  # frame shape=1080x1920
+        if ret == False:
+            break
+        frame = frame_resize(frame)
         cv2.imshow('frame', frame)
 
-        if cv2.waitKey(17)=="q":
+        if cv2.waitKey(17) == "q":
             break
-
     cap.release()
-    #vw.release()
     cv2.destroyAllWindows()
-
-
-
-
