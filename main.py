@@ -130,6 +130,7 @@ class RunGUI(QMainWindow, Ui_MainWindow):
     def im_display(self, pre_img=[]):
         if len(pre_img) == 0:
             self.Image = load_image(self.filename)
+            self.Image = frame_resize(self.Image)
             self.Image_v2 = cv2.GaussianBlur(self.Image, (9, 9), 1)
         img = cv2.cvtColor(self.Image, cv2.COLOR_BGR2RGB)
         qimg = qimage2ndarray.array2qimage(img)

@@ -2,7 +2,7 @@ class SV(object):
     # setting for dataset
     testdir = "test"
     testname = "hand2.jpg"
-    mode = "training"
+    mode = "training"#"evaluation"
     # dataset_main_path = "dataset"
     log_save_path = "log"
     dataset_main_path = "../../../dataset/FreiHAND_pub_v2"

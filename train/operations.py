@@ -51,7 +51,7 @@ def load_data_image(datadir, index=0, num=1, mode='training'):
 def load_image(datadir, input_size=368):
     file_assert(datadir)
     image = cv2.imread(datadir)
-    image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)  # cv2.INTER_LANCZOS4)#cv2.INTER_AREA
+    #image = cv2.resize(image, (368, 368), cv2.INTER_LANCZOS4)  # cv2.INTER_LANCZOS4)#cv2.INTER_AREA
 
     return image
 
