@@ -138,9 +138,9 @@ def main(argv):
                             print("center%d loss: %f" % (i + 1, center_loss[i]), end="  ")
                         print("")
 
-            if (epsoid + 1) % 1 == 0:
-                saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
-                print("\nModel checkpoint saved...\n")
+                if (turn + 1) % (SV.epo_turns/2) == 0:
+                    saver.save(sess=sess, save_path=model_dir, global_step=(global_step + 1))
+                    print("\nModel checkpoint saved...\n")
         print("=====================train done==========================")
 
 
