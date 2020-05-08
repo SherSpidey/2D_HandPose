@@ -3,9 +3,9 @@ class SV(object):
     testdir = "test"
     testname = "hand2.jpg"
     mode = "training"#"evaluation"
-    # dataset_main_path = "dataset"
+    dataset_main_path = "dataset"
     log_save_path = "log"
-    dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
+   # dataset_main_path = "../../../dataset/FreiHAND_pub_v2"
 
     # setting for the model
     stages = 6
@@ -14,12 +14,12 @@ class SV(object):
     heatmap_size = input_size / 8
     model = "cpm"
     model_save_path = "Model"
-    model_name = "sk_hand"
-    pretrained_model_name = "cpm_hand-20000"  # "cpm_hand-225000"#"cpm_hand-225000"#"cpm_hand-90000" #"cpm_hand.pkl"#"sk_hand"
+    model_name = "cpm_hand"
+    pretrained_model_name = "cpm_hand-20000"  # "cpm_hand-20000"#"cpm_hand-225000"#"cpm_hand-90000" #"cpm_hand.pkl"#"sk_hand-20000"
     sk_index = [0, 1, 6, 11, 16, 2, 7, 12, 17, 3, 8, 13, 18, 4, 9, 14, 19, 5, 10, 15, 20]
 
     # setting for training
-    batch_size = 10
+    batch_size = 2
     episodes = 15
     epo_turns = 5000
     learning_rate = 0.00005

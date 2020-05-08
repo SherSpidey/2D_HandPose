@@ -199,7 +199,7 @@ class CPM_Model(object):
                 sess.run(tf.assign(conv_bias, loaded_bias))
 
                 ## stage 2 and behind
-                for stage in range(2, self.stages + 1):
+                for stage in range(2, self.stages+1):
                     for layer in range(1, 8):
                         conv_kernel = tf.get_variable('stage_' + str(stage) + '/mid_conv' + str(layer) + '/weights')
                         conv_bias = tf.get_variable('stage_' + str(stage) + '/mid_conv' + str(layer) + '/biases')

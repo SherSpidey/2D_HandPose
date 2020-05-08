@@ -21,7 +21,7 @@ def main(argv):
     load dataset 
     """
 
-    data = DS(SV.dataset_main_path,
+    data = DS(os.path.join("train", SV.dataset_main_path),
               SV.batch_size,
               mode=SV.mode)
 
@@ -82,17 +82,19 @@ def main(argv):
                         var = tf.get_variable(variable.name.split(':0')[0])
                         print(variable.name, np.mean(sess.run(var)))
 
-        while (data.turn < data.datasize):
+        for i in range (3680//2):
             img, ano = data.NextBatch()
             img = img / 255.0 - 0.5
 
             heatmap = sess.run(sk.stage_heatmap[SV.stages - 1], feed_dict={sk.input_placeholder: img})
 
-            lable = get_coods(heatmap)
+            lable = get_coods(heatmap,train=True)
 
             l2_loss += np.linalg.norm(lable - ano) / SV.batch_size
 
-        l2_loss = l2_loss / data.datasize
+            print("%d of 3680."%((i+1)*SV.batch_size))
+
+        l2_loss = l2_loss / 3680
 
         print("L2 loss for evaluation is ", l2_loss)
 

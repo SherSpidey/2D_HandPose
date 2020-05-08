@@ -15,8 +15,10 @@ from PyQt5.QtGui import QPixmap
 class RunGUI(QMainWindow, Ui_MainWindow):
     def __del__(self):
         try:
-            self.camera.release()  # 释放资源
+            self.cap.release()  # 释放资源
             self.sess.close()
+            if self.Vsave == True:
+                self.VS.release()
         except:
             return
 
@@ -26,6 +28,7 @@ class RunGUI(QMainWindow, Ui_MainWindow):
         self.Model_loaded = False
         self.Image = []
         self.Image_v2 = []
+        self.Vsave = False
         self.choice = "图片"
         self.kalman_array = kalman_init()
         self.setupUi(self)
@@ -96,6 +99,9 @@ class RunGUI(QMainWindow, Ui_MainWindow):
                 elif self.choice == "视频":
                     self.runButton.setText("暂停")
                     self.cap = cv2.VideoCapture(self.filename)
+                    if self.Vsave == True:
+                        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+                        self.VS = cv2.VideoWriter('output.mp4', fourcc, 30.0, (368, 368))
                     self.Timer.start(1)
                     self.timelb = time.clock()
                 else:
@@ -105,6 +111,8 @@ class RunGUI(QMainWindow, Ui_MainWindow):
                     self.timelb = time.clock()
             else:
                 self.cap.release()
+                if self.Vsave == True:
+                    self.VS.release()
                 self.display_clear()
                 self.runButton.setText("运行")
                 self.statusbar.showMessage("")
@@ -160,6 +168,8 @@ class RunGUI(QMainWindow, Ui_MainWindow):
             lable = get_coods(heatmap)
             lable = movement_adjust(lable, self.kalman_array, enable=False)
             draw_skeleton(self.Image, lable)
+            if self.Vsave == True:
+                self.VS.write(self.Image)
             self.im_display(self.Image)
             self.statusbar.showMessage("正在显示...")
 
