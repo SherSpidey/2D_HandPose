@@ -29,6 +29,7 @@ class RunGUI(QMainWindow, Ui_MainWindow):
         self.Image = []
         self.Image_v2 = []
         self.Vsave = False
+        self.Kalman_enable = False
         self.choice = "图片"
         self.kalman_array = kalman_init()
         self.setupUi(self)
@@ -59,7 +60,7 @@ class RunGUI(QMainWindow, Ui_MainWindow):
         build CPM model
         """
         self.Model.build_model()
-        self.Model.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")
+        self.Model.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="SGD")  # "RMSProp"
 
         self.sess = tf.Session()
         # Create model saver
@@ -124,6 +125,8 @@ class RunGUI(QMainWindow, Ui_MainWindow):
 
     def getchoice(self):
         self.choice = self.funlist.currentText()
+        if self.choice != "图片":
+            self.display_clear()
 
     def openfile(self):
         if self.choice == "图片":
@@ -166,7 +169,7 @@ class RunGUI(QMainWindow, Ui_MainWindow):
                                     feed_dict={self.Model.input_placeholder: img})
 
             lable = get_coods(heatmap)
-            lable = movement_adjust(lable, self.kalman_array, enable=False)
+            lable = movement_adjust(lable, self.kalman_array, enable=self.Kalman_enable)
             draw_skeleton(self.Image, lable)
             if self.Vsave == True:
                 self.VS.write(self.Image)

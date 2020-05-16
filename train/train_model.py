@@ -45,7 +45,7 @@ def main(argv):
     build CPM model
     """
     sk.build_model()
-    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="RMSProp")  # "RMSProp"
+    sk.build_loss(SV.learning_rate, SV.lr_decay_rate, SV.lr_decay_step, optimizer="SGD")  # "RMSProp"
     print('\n=====Model Build=====\n')
 
     """
@@ -54,7 +54,7 @@ def main(argv):
     with tf.Session() as sess:
 
         # Create tensorboard
-        # log_writer = tf.summary.FileWriter(SV.log_save_path, sess.graph)
+        log_writer = tf.summary.FileWriter(SV.log_save_path, sess.graph)
 
         # Create model saver
         saver = tf.train.Saver(max_to_keep=None)
@@ -100,31 +100,31 @@ def main(argv):
 
                 if SV.model == "cpm_sk":
                     totol_loss, stage_loss, _, current_lr, center_loss, \
-                    stage_heatmap_np, global_step = sess.run([sk.total_loss,
+                    stage_heatmap_np, global_step,summaries= sess.run([sk.total_loss,
                                                               sk.stage_loss,
                                                               sk.train_op,
                                                               sk.lr,
                                                               sk.stage_center_loss,
                                                               sk.stage_heatmap,
                                                               sk.global_step,
-                                                              # sk.merged_summary
+                                                              sk.merged_summary
                                                               ],
                                                              feed_dict={sk.input_placeholder: images,
                                                                         sk.heatmap_placeholder: heatmap})
                 else:
                     totol_loss, stage_loss, _, current_lr, \
-                    stage_heatmap_np, global_step = sess.run([sk.total_loss,
+                    stage_heatmap_np, global_step,summaries= sess.run([sk.total_loss,
                                                               sk.stage_loss,
                                                               sk.train_op,
                                                               sk.lr,
                                                               sk.stage_heatmap,
                                                               sk.global_step,
-                                                              # sk.merged_summary
+                                                              sk.merged_summary
                                                               ],
                                                              feed_dict={sk.input_placeholder: images,
                                                                         sk.heatmap_placeholder: heatmap})
                 # Write logs
-                # log_writer.add_summary(summaries, global_step)
+                log_writer.add_summary(summaries, global_step)
 
                 if (turn + 1) % 10 == 0:
                     print("epsoid ", epsoid, ":")
