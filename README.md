@@ -18,4 +18,4 @@ Requirements:\
 tensorflow-gpu<=2.0.0\
 opencv-python\
 pyqt5,pyqt5-tools\
-qimage2ndarray\
+qimage2ndarray
